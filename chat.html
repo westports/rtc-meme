@@ -48,6 +48,7 @@
             
             socket.onmessage = function(ev) {
                 $("#msg").prepend(ev.data);
+                console.log(ev.data);
             }
             
             socket.onerror = function(ev){
