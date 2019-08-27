@@ -56,8 +56,12 @@
             }
             
             socket.onmessage = function(ev) {
-                $("#msg").prepend(ev.data);
-                console.log("<p>"+ev.data+"</p>");
+                try {
+                    let content = JSON.parse(ev.data);
+                
+                    $("#msg").prepend("<p>"+content.sender+": "+content.msg+"</p>");
+                    console.log(ev.data);
+                } catch(err) {}
             }
             
             socket.onerror = function(ev){
@@ -71,7 +75,9 @@
             
             $("#send_btn").click(function(){
                 //console.log($("#msg_content").val());
-                socket.send($("#msg_content").val());
+                let msg = {"sender":userid, "msg":$("#msg_content").val()};
+                socket.send(msg);
+                $("#msg").prepend("<p>You: "+$("#msg_content").val()+"</p>");
                 //$("#msg_content").val("");
             });
         });
