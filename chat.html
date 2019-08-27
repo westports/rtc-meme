@@ -24,8 +24,8 @@
                 <div class="col"><button type="button" class="btn btn-primary" id="send_btn">Send</button></div>
               </div>
           </div>
-          <div class="row" id="msg">
-              
+          <div class="row">
+              <textarea class="form-control" rows="10" id="msg" readonly></textarea>
           </div>
       </div>
 
@@ -59,7 +59,7 @@
                 try {
                     let content = JSON.parse(ev.data);
                 
-                    $("#msg").prepend("<p class='row'>"+content.sender+": "+content.msg+"</p>");
+                    $("#msg").append(content.sender+": "+content.msg+"\n");
                     console.log(ev.data);
                 } catch(err) {}
             }
@@ -77,7 +77,7 @@
                 //console.log($("#msg_content").val());
                 let msg = {"sender":userid, "msg":$("#msg_content").val()};
                 socket.send(JSON.stringify(msg));
-                $("#msg").prepend("<p class='row'>You: "+$("#msg_content").val()+"</p>");
+                $("#msg").append("You: "+$("#msg_content").val()+"\n");
                 //$("#msg_content").val("");
             });
         });
