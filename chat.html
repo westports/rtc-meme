@@ -29,7 +29,7 @@
                 <div class="col"><button type="button" class="btn btn-primary" id="send_btn">Send</button></div>
               </div>
           </div>
-          <div class="row">
+          <div class="container-fluid">
               <div class="col-lg-5">
                 <textarea class="form-control" rows="10" id="msg" readonly></textarea>
               </div>
@@ -66,6 +66,7 @@
             
             socket.onopen = function(ev) { // connection is open   
                 $("#socket_status").html("Connected to "+channel+" ("+room+")");  
+                send_identity();
                 console.log("websocket connected..");
             }
             
@@ -87,6 +88,7 @@
                             });                            
                             var $textarea = $('#user-list');
                             $textarea.scrollTop($textarea[0].scrollHeight);
+                            send_identity();
                         }
                     }
                     if(content.type == "quit") {
@@ -127,7 +129,7 @@
         });
         
         function send_identity() {
-            let msg = {"type":"ident", "sender":userid, "msg":$("#msg_content").val()};
+            let msg = {"type":"ident", "sender":userid};
             socket.send(JSON.stringify(msg));
         }
         
