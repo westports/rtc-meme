@@ -9,14 +9,14 @@
     <title>Westports RTC</title>
   </head>
   <body>
-      <div class="container-fluid">
+      <div class="container">
           <div class="row">
               <p>Status: <span id="socket_status">Not connected..</span></p>
           </div>
           <div class="row">
               <div class="form-row">
                 <div class="col">
-                  <input type="text" class="form-control" placeholder="Name">
+                    <input type="text" class="form-control" placeholder="Name" id="username" readonly>
                 </div>
                 <div class="col">
                   <input type="text" class="form-control" placeholder="Message" id="msg_content">
@@ -38,7 +38,16 @@
         var socket;
         var channel = "westports_malaysia";
         var room = "tto_test";
+        var userid = Math.random();
         $(document).ready(function(){
+            var url_string = document.location.href;
+            var url = new URL(url_string);
+            var c = url.searchParams.get("user");
+            if(c!="") {
+                userid = c;
+                $("#username").val(userid);
+            }
+
             socket = new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
             
             socket.onopen = function(ev) { // connection is open   
@@ -48,7 +57,7 @@
             
             socket.onmessage = function(ev) {
                 $("#msg").prepend(ev.data);
-                console.log(ev.data);
+                console.log("<p>"+ev.data+"</p>");
             }
             
             socket.onerror = function(ev){
@@ -62,15 +71,9 @@
             
             $("#send_btn").click(function(){
                 //console.log($("#msg_content").val());
-                socket.send("test");
+                socket.send($("#msg_content").val());
                 //$("#msg_content").val("");
             });
-            
-            setInterval(function(){
-                if(socket!=null) {
-                    socket.send("hello");
-                }
-            }, 3000)
         });
     </script>
   </body>
