@@ -7,6 +7,11 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <title>Westports RTC</title>
+    <style type="text/css">
+        #user_placeholder {
+            display: none;
+        }
+    </style>
   </head>
   <body>
       <div class="container">
@@ -25,7 +30,13 @@
               </div>
           </div>
           <div class="row">
-              <textarea class="form-control" rows="10" id="msg" readonly></textarea>
+              <div class="col-lg-5">
+                <textarea class="form-control" rows="10" id="msg" readonly></textarea>
+              </div>
+              <div class="col-sm-2">
+                  <textarea class="form-control" rows="10" id="user-list" readonly></textarea>
+                  <div id="user_placeholder"></div>
+              </div>
           </div>
       </div>
 
@@ -39,6 +50,8 @@
         var channel = "test";
         var room = "test";
         var userid = Math.random();
+        var userlist = [];
+        
         $(document).ready(function(){
             var url_string = document.location.href;
             var url = new URL(url_string);
@@ -59,11 +72,34 @@
             socket.onmessage = function(ev) {
                 try {
                     let content = JSON.parse(ev.data);
-                
-                    $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
-                    var $textarea = $('#msg');
-                    $textarea.scrollTop($textarea[0].scrollHeight);
-                    console.log(ev.data);
+                    if(content.type == "msg") {
+                        $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
+                        var $textarea = $('#msg');
+                        $textarea.scrollTop($textarea[0].scrollHeight);
+                        console.log(ev.data);
+                    }
+                    if(content.type == "ident") {
+                        if($("span#user_"+content.sender).length<=0) {
+                            $("#user_placeholder").append("<span id='user_"+content.sender+"'>"+content.sender+"</span>");
+                            $("#user-list").html("");
+                            $("#user_placeholder span").each(function(){
+                                $("#user-list").append($(this).text()+"\n");
+                            });                            
+                            var $textarea = $('#user-list');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                        }
+                    }
+                    if(content.type == "quit") {
+                        if($("span#user_"+content.sender).length>0) {
+                            $("span#user_"+content.sender).remove();
+                            $("#user-list").html("");
+                            $("#user_placeholder span").each(function(){
+                                $("#user-list").append($(this).text()+"\n");
+                            });                            
+                            var $textarea = $('#user-list');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                        }
+                    }
                 } catch(err) {}
             }
             
@@ -72,18 +108,28 @@
                 console.log("websocket error"+ev)
             }; 
             socket.onclose = function(ev){ 
+                let msg = {"type":"quit", "sender":userid};
+                socket.send(JSON.stringify(msg));
                 $("#socket_status").html("Connection Error!"); 
                 console.log("websocket close"+ev)
             };
             
             $("#send_btn").click(function(){
-                let msg = {"sender":userid, "msg":$("#msg_content").val()};
+                let msg = {"type":"msg", "sender":userid, "msg":$("#msg_content").val()};
                 socket.send(JSON.stringify(msg));
                 $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
                 var $textarea = $('#msg');
                 $textarea.scrollTop($textarea[0].scrollHeight);
             });
+            
+            //broadcast own id
+            
         });
+        
+        function send_identity() {
+            let msg = {"type":"ident", "sender":userid, "msg":$("#msg_content").val()};
+            socket.send(JSON.stringify(msg));
+        }
         
         function get_dtime() {
             let dt = new Date();
