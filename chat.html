@@ -52,7 +52,7 @@
             socket = new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
             
             socket.onopen = function(ev) { // connection is open   
-                $("#socket_status").html("Connected to "+room);  
+                $("#socket_status").html("Connected to "+channel+" ("+room+")");  
                 console.log("websocket connected..");
             }
             
