@@ -61,6 +61,7 @@
             };
             
             $("#send_btn").click(function(){
+                console.log($("#msg_content").val());
                 socket.send($("#msg_content").val());
                 $("#msg_content").val("");
             });
