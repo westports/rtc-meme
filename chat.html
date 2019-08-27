@@ -60,6 +60,8 @@
                     let content = JSON.parse(ev.data);
                 
                     $("#msg").append(content.sender+": "+content.msg+"\n");
+                    var $textarea = $('#msg');
+                    $textarea.scrollTop($textarea[0].scrollHeight);
                     console.log(ev.data);
                 } catch(err) {}
             }
@@ -74,11 +76,11 @@
             };
             
             $("#send_btn").click(function(){
-                //console.log($("#msg_content").val());
                 let msg = {"sender":userid, "msg":$("#msg_content").val()};
                 socket.send(JSON.stringify(msg));
                 $("#msg").append("You: "+$("#msg_content").val()+"\n");
-                //$("#msg_content").val("");
+                var $textarea = $('#msg');
+                $textarea.scrollTop($textarea[0].scrollHeight);
             });
         });
     </script>
