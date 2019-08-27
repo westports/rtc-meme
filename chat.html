@@ -36,16 +36,17 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script type="text/javascript">
         var socket;
-        var channel = "westports_malaysia";
-        var room = "tto_test";
+        var channel = "test";
+        var room = "test";
         var userid = Math.random();
         $(document).ready(function(){
             var url_string = document.location.href;
             var url = new URL(url_string);
-            var c = url.searchParams.get("user");
-            if(c!="") {
-                userid = c;
-                $("#username").val(userid);
+            var c = url.searchParams.get("u");
+            var d = url.searchParams.get("ch");
+            var e = url.searchParams.get("r");
+            if(c!="" && d!="" && e!="") {
+                userid = c; $("#username").val(userid); channel = d; room = e;
             }
 
             socket = new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
