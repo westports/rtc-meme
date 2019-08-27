@@ -65,6 +65,12 @@
                 socket.send("test");
                 //$("#msg_content").val("");
             });
+            
+            setInterval(function(){
+                if(socket!=null) {
+                    socket.send("hello");
+                }
+            }, 3000)
         });
     </script>
   </body>
