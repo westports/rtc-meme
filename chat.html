@@ -59,7 +59,7 @@
                 try {
                     let content = JSON.parse(ev.data);
                 
-                    $("#msg").append(content.sender+": "+content.msg+"\n");
+                    $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
                     var $textarea = $('#msg');
                     $textarea.scrollTop($textarea[0].scrollHeight);
                     console.log(ev.data);
@@ -78,11 +78,33 @@
             $("#send_btn").click(function(){
                 let msg = {"sender":userid, "msg":$("#msg_content").val()};
                 socket.send(JSON.stringify(msg));
-                $("#msg").append("You: "+$("#msg_content").val()+"\n");
+                $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
                 var $textarea = $('#msg');
                 $textarea.scrollTop($textarea[0].scrollHeight);
             });
         });
+        
+        function get_dtime() {
+            let dt = new Date();
+            return dt;
+        }
+        
+        function get_date_str_jscript(d) {
+            var now = d;
+            var dt = now.getDate();
+            dt = (String(dt).length<2)? String("0") + String(dt) : dt;
+            var hrs = now.getHours();
+            hrs = (String(hrs).length<2)? String("0") + String(hrs) : hrs;
+            var min = now.getMinutes();
+            min = (String(min).length<2)? String("0") + String(min) : min;
+            var sec = now.getSeconds();
+            sec = (String(sec).length<2)? String("0") + String(sec) : sec;
+            var mth = (now.getMonth() + 1);
+            mth = (String(mth).length<2)? String("0") + String(mth) : mth;
+            //return now.getFullYear()+'-'+String(mth)+'-'+String(dt)+' '+String(hrs)+':'+String(min)+':'+String(sec);
+            return String(hrs)+':'+String(min)+':'+String(sec);
+            //return now.getHours()+':'+String(min)+':'+String(sec);
+        }
     </script>
   </body>
 </html>
