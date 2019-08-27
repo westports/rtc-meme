@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>Westports RTC</title>
+  </head>
+  <body>
+      <div class="container-fluid">
+          <div class="row">
+              <p>Status: <span id="socket_status">Not connected,,</span></p>
+          </div>
+          <div class="row">
+              <div class="form-row">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Name">
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Message" id="msg_content">
+                </div>
+                <div class="col"><button type="button" class="btn btn-primary" id="send_btn">Send</button></div>
+              </div>
+          </div>
+          <div class="row" id="msg">
+              
+          </div>
+      </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var socket;
+        var channel = "westports_malaysia";
+        var room = "tto_test";
+        $(document).ready(function(){
+            socket = new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
+            
+            socket.onopen = function(ev) { // connection is open   
+                $("#socket_status").html("Connected to "+room);  
+                console.log("websocket connected..");
+            }
+            
+            socket.onmessage = function(ev) {
+                $("#msg").prepend(ev.data);
+            }
+            
+            socket.onerror = function(ev){
+                $("#socket_status").html("Connection Error!"); 
+                console.log("websocket error"+ev)
+            }; 
+            socket.onclose = function(ev){ 
+                $("#socket_status").html("Connection Error!"); 
+                console.log("websocket close"+ev)
+            };
+            
+            $("#send_btn").click(function(){
+                socket.send($("#msg_content").val());
+                $("#msg_content").val("");
+            });
+        });
+    </script>
+  </body>
+</html>
