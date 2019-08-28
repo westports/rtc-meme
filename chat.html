@@ -124,6 +124,7 @@
                 $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
                 var $textarea = $('#msg');
                 $textarea.scrollTop($textarea[0].scrollHeight);
+                $("#msg_content").val("");
             });
             
             //broadcast own id
