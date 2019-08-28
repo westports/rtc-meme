@@ -349,13 +349,7 @@
                                 try {
                                     pc[id].createOffer()
                                     .then(offer => pc[id].setLocalDescription(offer))
-                                    .then(() => {
-                                            try {
-                                                send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))})
-                                                //send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id);
-                                            } catch(err) { } 
-                                        }
-                                    )
+                                    .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
                                 } catch(err) {  } 
                                 console.log("onnegotiationneeded offer sent to: "+id)
                             }
