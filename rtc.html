@@ -128,7 +128,7 @@
                     if(msgbody.datas==undefined || msgfrom==userid) return;
                     
                     let content = JSON.parse(msgbody.datas);
-                    console.log(content)
+                    //console.log(content)
                     if(content.type == "msg") {
                         $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
                         var $textarea = $('#msg');
@@ -176,6 +176,7 @@
                     if(content.type == "rtc_sdp") {
                         try {
                             data = JSON.parse(content.sdp);
+                            console.log("sdp==> "+content.sdp);
                             
                             if(typeof data.type != "undefined" && data.type=="offer") {
                                 console.log("offer received from "+content.sender)
