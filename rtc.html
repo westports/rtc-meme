@@ -485,11 +485,7 @@
         function send_data(msg) {
             msg = JSON.stringify(msg);
             var obj;
-            if(to!='') {
-                obj = {"data":{"id":global_username, "zone":channel+room, "datas":msg}};
-            } else {
-                obj = {"data":{"id":global_username, "zone":channel+room, "datas":msg}};
-            }
+            obj = {"data":{"id":global_username, "zone":channel+room, "datas":msg}};
             if(socket!=null) {
                 try {
                 socket.send(JSON.stringify(obj));
