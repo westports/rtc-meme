@@ -125,6 +125,7 @@
                     }
                     let msgbody = rawdata.data;
                     let msgfrom = msgbody.id;
+                    console.log(msgbody)
                     if(msgbody.datas==undefined || msgfrom==userid) return;
                     
                     let content = JSON.parse(msgbody.datas);
