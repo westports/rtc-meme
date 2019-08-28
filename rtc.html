@@ -513,6 +513,7 @@
         }
         
         function send_sdp(sdp_data, _to) {
+            console.log("sending sdp: "+sdp_data)
             $.ajax({
                 url: "https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data,
                 type: "GET",
