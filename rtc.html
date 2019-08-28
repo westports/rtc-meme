@@ -118,14 +118,13 @@
             
             socket.onmessage = function(ev) {
                 try {
-                    let rawdata = ev.data;
-                    //console.log(ev.data)
+                    let rawdata = JSON.parse(ev.data);
                     if (typeof rawdata.data=="undefined") {
                         return;
                     }
                     let msgbody = rawdata.data;
                     let msgfrom = msgbody.id;
-                    console.log(msgbody)
+                    //console.log(msgbody)
                     if(msgbody.datas==undefined || msgfrom==userid) return;
                     
                     let content = JSON.parse(msgbody.datas);
