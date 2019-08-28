@@ -167,10 +167,10 @@
                             data = content.sdp;
                             
                             if(typeof data.type != "undefined" && data.type=="offer") {
-                                console.log("offer received " + negotiating[content.sender])
+                                console.log("offer received from "+content.sender)
                                 //$("#connect"+userid).hide();
                                 //$("#answer"+from).show();
-                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null && negotiating[content.sender]!="have-local-offer") {
+                                //if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null && negotiating[content.sender]!="have-local-offer") {
 
                                  try { 
                                     pc[content.sender].setRemoteDescription(data) //new RTCSessionDescription(data)
@@ -193,7 +193,7 @@
                                              }
                                        })
                                     } catch(err) { console.log(err) }
-                                }
+                                //}
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
                                 console.log("answer received " + negotiating[content.sender])
