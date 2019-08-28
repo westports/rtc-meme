@@ -107,7 +107,7 @@
                 userid = c; $("#username").val(userid); channel = d; room = e;
             }
 
-            socket = new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
+            socket = new WebSocket("wss://172.21.95.210/wss");//new WebSocket("wss://connect.websocket.in/"+channel+"?room_id="+room);
             
             socket.onopen = function(ev) { // connection is open   
                 $("#socket_status").html("Connected to "+channel+" ("+room+")");  
