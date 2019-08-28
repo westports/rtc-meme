@@ -183,7 +183,7 @@
                                     pc[content.sender].setRemoteDescription(data) //new RTCSessionDescription(data)
                                        .then(() => pc[content.sender].createAnswer())
                                        .then(answer => pc[content.sender].setLocalDescription(answer))
-                                       .then(() => send_data(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[content.sender].localDescription)})))
+                                       .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[content.sender].localDescription)}))
                                        .then(() => {
                                            console.log("answer given to): " + content.sender);
                                            console.log("Remote streams (get_sdp -answer): " + content.sender);
@@ -236,14 +236,14 @@
             }; 
             socket.onclose = function(ev){ 
                 let msg = {"type":"quit", "sender":userid};
-                send_data(JSON.stringify(msg));
+                send_data(msg);
                 $("#socket_status").html("Error!"); 
                 console.log("websocket close"+ev)
             };
             
             $("#send_btn").click(function(){
                 let msg = {"type":"msg", "sender":userid, "msg":$("#msg_content").val()};
-                send_data(JSON.stringify(msg));
+                send_data(msg);
                 $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
                 var $textarea = $('#msg');
                 $textarea.scrollTop($textarea[0].scrollHeight);
@@ -316,7 +316,7 @@
                         //console.log(event.candidate);
                         if(event.candidate) {
                             let msg = {"type":"rtc_ice", "sender":id, "ice":event.candidate};
-                            send_data(JSON.stringify(msg));
+                            send_data(msg);
                         }
                     }  
                     pc[id].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
@@ -369,7 +369,7 @@
                             else {
                                 pc[id].createOffer()
                                .then(offer => pc[id].setLocalDescription(offer))
-                               .then(() => send_data(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})))
+                               .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
                             }
                         } catch(err) { console.log(err) }   
                     }                           
@@ -380,7 +380,7 @@
                         try {
                             pc[id].createOffer()
                             .then(offer => pc[id].setLocalDescription(offer) )
-                            .then(() => send_data(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))) 
+                            .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})) 
                             .then(() => console.log("offer sent to: "+id))
 
                             pc[id].onnegotiationneeded = function () {
@@ -389,7 +389,7 @@
                                     .then(offer => pc[id].setLocalDescription(offer))
                                     .then(() => {
                                             try {
-                                                send_data(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
+                                                send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})
                                             } catch(err) { } 
                                         }
                                     )
@@ -500,7 +500,7 @@
         
         function send_identity() {
             let msg = {"type":"ident", "sender":userid};
-            send_data(JSON.stringify(msg));
+            send_data(msg);
         }
         
         function get_dtime() {
