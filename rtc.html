@@ -123,7 +123,7 @@
                     if(rawdata.datas==undefined || msgfrom==userid) return;
                     
                     let content = JSON.parse(rawdata.datas);
-                    
+                    console.log(content)
                     if(content.type == "msg") {
                         $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
                         var $textarea = $('#msg');
