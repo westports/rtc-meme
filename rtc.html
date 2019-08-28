@@ -112,14 +112,14 @@
             socket.onopen = function(ev) { // connection is open   
                 $("#socket_status").html("Connected to "+channel+" ("+room+")");
                 register_zone();
-                setTimeout("send_identity();", 200); 
+                setTimeout("send_identity();", 100); 
                 console.log("websocket connected..");
             }
             
             socket.onmessage = function(ev) {
                 try {
                     let rawdata = JSON.parse(ev.data);
-                    console.log(rawdata)
+                    console.log(ev.data)
                     let msgfrom = rawdata.id;
                     if(rawdata.datas==undefined || msgfrom==userid) return;
                     
