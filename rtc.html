@@ -338,7 +338,7 @@
 
                 })
                 .then(() => {
-                    //if(typeof pc[msguserid]!="undefined" && pc[msguserid]!=null && negotiating[msguserid]!="have-local-offer") {
+                    if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer") {
                         try {
                             pc[id].createOffer()
                             .then(offer => pc[id].setLocalDescription(offer) )
@@ -361,7 +361,7 @@
                             }
 
                         } catch(err) { console.log(err) }            
-                    //}
+                    }
                 })
             }
         }
@@ -436,6 +436,15 @@
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
                 negotiating[id] = null;
+                if($("span#user_"+id).length>0) {
+                    $("span#user_"+id).remove();
+                    $("#user-list").html("");
+                    $("#user_placeholder span").each(function(){
+                        $("#user-list").append($(this).text()+"\n");
+                    });                            
+                    var $textarea = $('#user-list');
+                    $textarea.scrollTop($textarea[0].scrollHeight);
+                }
             } catch(err) {}
         }
         
