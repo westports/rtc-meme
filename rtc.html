@@ -175,59 +175,7 @@
                     }
                     if(content.type == "rtc_sdp") {
                         try {
-                            data = JSON.parse(content.sdp);
-                            console.log("sdp==> "+content.sdp);
-                            
-                            if(typeof data.type != "undefined" && data.type=="offer") {
-                                console.log("offer received from "+content.sender)
-                                //$("#connect"+userid).hide();
-                                //$("#answer"+from).show();
-                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null && pc[content.sender].signalingState!="have-local-offer") {
-
-                                 try { 
-                                    pc[content.sender].setRemoteDescription(data) //new RTCSessionDescription(data)
-                                       .then(() => pc[content.sender].createAnswer())
-                                       .then(answer => pc[content.sender].setLocalDescription(answer))
-                                       .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[content.sender].localDescription)}))
-                                       .then(() => {
-                                           console.log("answer given to): " + content.sender);
-                                           console.log("Remote streams (get_sdp -answer): " + content.sender);
-                                             $("#video"+content.sender).show();
-                                             var streams = pc[content.sender].getRemoteStreams();
-                                             for (var stream of streams) {
-                                               if($("#video"+content.sender).length==0) {
-                                                 add_videobox(content.sender, "")
-                                               }    
-                                               let _friendsVideo = document.getElementById("video"+content.sender);
-                                               if(stream) {
-                                                   _friendsVideo.srcObject = stream;                                       
-                                               }
-                                             }
-                                       })
-                                    } catch(err) { console.log(err) }
-                                }
-                            }
-                            if(typeof data.type != "undefined" && data.type=="answer") {
-                                console.log("answer received " + negotiating[content.sender])
-                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null) { // && negotiating[userid]!="stable"
-                                    try {  
-                                    pc[content.sender].setRemoteDescription(data).then(()=> {
-                                        $("#video"+content.sender).show();
-                                        var streams = pc[content.sender].getRemoteStreams();
-                                        for (var stream of streams) {
-                                            console.log("Remote streams (get_sdp): " + content.sender);
-                                            if($("#video"+content.sender).length==0) {
-                                              add_videobox(content.sender, "")
-                                            }
-                                            let _friendsVideo = document.getElementById("video"+content.sender);
-                                            _friendsVideo.srcObject = stream;      
-                                            $("#video"+content.sender).show();
-                                        }
-                                    }) 
-                                    } catch(err) { console.log(err) }
-                                }
-                            }
-                        
+                            get_sdp(content.sender, userid);                      
                         } catch(err) { console.log(err) }
 
                         
@@ -375,7 +323,7 @@
                             else {
                                 pc[id].createOffer()
                                .then(offer => pc[id].setLocalDescription(offer))
-                               .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
+                               .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))
                             }
                         } catch(err) { console.log(err) }   
                     }                           
@@ -386,7 +334,7 @@
                         try {
                             pc[id].createOffer()
                             .then(offer => pc[id].setLocalDescription(offer) )
-                            .then(() => send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})) 
+                            .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))
                             .then(() => console.log("offer sent to: "+id))
 
                             pc[id].onnegotiationneeded = function () {
@@ -395,7 +343,8 @@
                                     .then(offer => pc[id].setLocalDescription(offer))
                                     .then(() => {
                                             try {
-                                                send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})
+                                                //send_data({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)})
+                                                send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id);
                                             } catch(err) { } 
                                         }
                                     )
@@ -550,6 +499,115 @@
             const deviceInfo = deviceInfos[i];
             //console.log('Found device: ', deviceInfo);
           }
+        }
+        
+        function send_sdp(sdp_data, _to) {
+            $.ajax({
+                url: "?t=empty&app=rtc/sdp&push=1",
+                type: "POST",
+                dataType: 'text',
+                data: {to: _to, from: userid, sdp: sdp_data},
+                async:true,
+                success: function(msg){
+                    try {                        
+                        if(msg=="OK") {
+                            send_data({type: 'rtc_sdp', sender: userid});
+                        }
+                    }
+                    catch (err) { console.log(err) }
+
+                }, 
+                error:function() { 
+                },
+                fail : function() {
+                },
+                timeout : function() { 
+                },
+                abort : function() {
+                }
+            });
+        }
+        
+        function get_sdp(from, to) {
+            $.ajax({
+                url: "?t=empty&app=rtc/sdp&get=1",
+                type: "POST",
+                dataType: 'text',
+                data: {from: from, to: to},
+                async:true,
+                success: function(msg){
+                    try {               
+                        let data = window.atob(msg);
+                        //console.log("OK");
+                        //console.log(data)
+                        data = JSON.parse(data);
+                        console.log("sdp type " + data.type)
+                        try {
+                            //data.sdp = data.sdp.replace("a=setup:active", "a=setup:passive");
+                        } catch(err) { console.log(err) }
+
+                        if(typeof data.type != "undefined" && data.type=="offer") {
+                            console.log("offer received "+ from+" " + pc[from].signalingState)
+                            //$("#connect"+userid).hide();
+                            //$("#answer"+from).show();
+                            if(typeof pc[from]!="undefined" && pc[from]!=null && pc[from].signalingState!="have-local-offer") {
+
+                             try { 
+                                pc[from].setRemoteDescription(data) //new RTCSessionDescription(data)
+                                   .then(() => pc[from].createAnswer())
+                                   .then(answer => pc[from].setLocalDescription(answer))
+                                   .then(() => send_sdp(window.btoa(JSON.stringify(pc[from].localDescription)), from))
+                                   .then(() => {
+                                       console.log("answer given to): " + from);
+                                       console.log("Remote streams (get_sdp -answer): " + from);
+                                         $("#video"+from).show();
+                                         var streams = pc[from].getRemoteStreams();
+                                         for (var stream of streams) {
+                                           if($("#video"+from).length==0) {
+                                             add_videobox(from, "")
+                                           }    
+                                           let _friendsVideo = document.getElementById("video"+from);
+                                           if(stream) {
+                                               _friendsVideo.srcObject = stream;                                       
+                                           }
+                                         }
+                                   })
+                                } catch(err) { console.log(err) }
+                            }
+                        }
+                        if(typeof data.type != "undefined" && data.type=="answer") {
+                            console.log("answer received "+ from+" " + pc[from].signalingState)
+                            if(typeof pc[from]!="undefined" && pc[from]!=null) { // && negotiating[userid]!="stable"
+                                try {  
+                                pc[from].setRemoteDescription(data).then(()=> {
+                                    $("#video"+from).show();
+                                    var streams = pc[from].getRemoteStreams();
+                                    for (var stream of streams) {
+                                        console.log("Remote streams (get_sdp): " + from);
+                                        if($("#video"+from).length==0) {
+                                          add_videobox(from, "")
+                                        }
+                                        let _friendsVideo = document.getElementById("video"+from);
+                                        _friendsVideo.srcObject = stream;      
+                                        $("#video"+from).show();
+                                    }
+                                }) //new RTCSessionDescription(data)
+                                } catch(err) { console.log(err) }
+                            }
+                        }
+                    }
+                    catch (err) { console.log(err) }
+
+                }, 
+                error:function() { 
+                },
+                fail : function() {
+                },
+                timeout : function() { 
+                },
+                abort : function() {
+                }
+            });
         }
     </script>
   </body>
