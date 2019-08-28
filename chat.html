@@ -168,11 +168,9 @@
                             
                             if(typeof data.type != "undefined" && data.type=="offer") {
                                 console.log("offer received from "+content.sender)
-                                console.log(content.sdp)
-                                console.log(data)
                                 //$("#connect"+userid).hide();
                                 //$("#answer"+from).show();
-                                //if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null && negotiating[content.sender]!="have-local-offer") {
+                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null && pc[content.sender].signalingState!="have-local-offer") {
 
                                  try { 
                                     pc[content.sender].setRemoteDescription(data) //new RTCSessionDescription(data)
@@ -195,7 +193,7 @@
                                              }
                                        })
                                     } catch(err) { console.log(err) }
-                                //}
+                                }
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
                                 console.log("answer received " + negotiating[content.sender])
@@ -310,7 +308,7 @@
                     pc[id].onicecandidate = function(event) {
                         //console.log(event.candidate);
                         if(event.candidate) {
-                            let msg = {"type":"rtc_ice", "ice":event.candidate};
+                            let msg = {"type":"rtc_ice", "sender":id, "ice":event.candidate};
                             socket.send(JSON.stringify(msg));
                         }
                     }  
