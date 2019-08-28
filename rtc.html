@@ -118,12 +118,16 @@
             
             socket.onmessage = function(ev) {
                 try {
-                    let rawdata = JSON.parse(ev.data);
-                    console.log(ev.data)
-                    let msgfrom = rawdata.id;
-                    if(rawdata.datas==undefined || msgfrom==userid) return;
+                    let rawdata = ev.data;
+                    //console.log(ev.data)
+                    if (typeof rawdata.data=="undefined") {
+                        return;
+                    }
+                    let msgbody = JSON.parse(rawdata.data);
+                    let msgfrom = msgbody.id;
+                    if(msgbody.datas==undefined || msgfrom==userid) return;
                     
-                    let content = JSON.parse(rawdata.datas);
+                    let content = JSON.parse(msgbody.datas);
                     console.log(content)
                     if(content.type == "msg") {
                         $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
