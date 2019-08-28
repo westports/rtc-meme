@@ -123,7 +123,7 @@
                     if (typeof rawdata.data=="undefined") {
                         return;
                     }
-                    let msgbody = JSON.parse(rawdata.data);
+                    let msgbody = rawdata.data;
                     let msgfrom = msgbody.id;
                     if(msgbody.datas==undefined || msgfrom==userid) return;
                     
