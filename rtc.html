@@ -259,9 +259,11 @@
             });    
             //rtc
             
-            window.addEventListener('message', function(e) {
+        });
+        
+        function process_get_sdp(data) {
                 try {
-                    let recvdata = $.trim(e.data);
+                    let recvdata = $.trim(data);
                     console.log("console.log(recvdata): "+recvdata)
                     let _data = JSON.parse(recvdata);
                     if(_data.type=="send_sdp") {
@@ -337,8 +339,7 @@
                     }
                 
                 } catch(err) {console.log(err)}
-            });
-        });
+        }
         
         function rtc_create(id) {
             remove_user_element(id);
