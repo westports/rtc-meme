@@ -62,10 +62,7 @@
                         </div>
                     </div>
                   </li>
-                  <li class="list-group-item">
-                      <iframe src="https://github.com/" height="200" width="300" id="set_sdp" referrerpolicy="no-referrer"></iframe>
-                      <iframe src="https://github.com/" height="200" width="300" id="fetch_sdp" referrerpolicy="no-referrer"></iframe>
-                  </li>
+                  <li class="list-group-item" id="script_placeholder"></li>
               </ul> 
           </div>
       </div>
@@ -550,7 +547,8 @@
         
         function send_sdp(sdp_data, _to) {
             //console.log("sending sdp: "+sdp_data)
-            $("#set_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data);
+            //$("#set_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data);
+            $("#script_placeholder").html("<script src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data+"'>");
             return;
             $.ajax({
                 url: "https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data,
@@ -584,7 +582,8 @@
         }
         
         function get_sdp(from, to) {
-            $("#fetch_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&get=1&to="+to+"&from="+from);
+            //.$("#fetch_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&get=1&to="+to+"&from="+from);
+            $("#script_placeholder").html("<script src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&get=1&to="+to+"&from="+from+"'>");
             return;
             
             $.ajax({
