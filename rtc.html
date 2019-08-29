@@ -56,9 +56,9 @@
                       <div class="col-md-2 videobox">
                         <div class="thumbnail">
                           <video id="localVideo" autoplay muted controls style="display:none"></video>
-                          <div class="caption">
+                          <!--<div class="caption">
                             <h3>You</h3>
-                          </div>
+                          </div>-->
                         </div>
                     </div>
                   </li>
@@ -549,130 +549,13 @@
         }
         
         function send_sdp(sdp_data, _to) {
-            //console.log("sending sdp: "+sdp_data)
-            //$("#set_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data);
             $("#script_placeholder").append("<script id='scriptsend_sdp"+_to+"' src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data+"'>");
-            setTimeout(function(){ $("#scriptsend_sdp"+_to).remove() }, 3000)
-            return;
-            $.ajax({
-                url: "https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data,
-                type: "GET",
-                contentType: 'application/json',
-                dataType: 'jsonp',
-                crossDomain: true,
-                //data: {to: _to, from: userid, sdp: sdp_data},
-                async:true,
-                success: function(msg){
-                    try {     
-                        if(msg['result']=="OK") {
-                            send_data({type: 'rtc_sdp', sender: userid});
-                        }
-                        /*if(msg=="OK") {
-                            send_data({type: 'rtc_sdp', sender: userid});
-                        }*/
-                    }
-                    catch (err) { console.log(err) }
-
-                }, 
-                error:function() { 
-                },
-                fail : function() {
-                },
-                timeout : function() { 
-                },
-                abort : function() {
-                }
-            });
+            setTimeout(function(){ $("#scriptsend_sdp"+_to).remove() }, 3000)            
         }
         
         function get_sdp(from, to) {
-            //.$("#fetch_sdp").attr("src", "https://172.21.95.210/utils/?t=default&app=rtc/sdp&get=1&to="+to+"&from="+from);
             $("#script_placeholder").html("<script id='scriptget_sdp"+to+"' src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&get=1&to="+to+"&from="+from+"'>");
             setTimeout(function(){ $("#scriptget_sdp"+to).remove() }, 3000)
-            return;
-            
-            $.ajax({
-                url: "https://172.21.95.210/utils/?t=empty&app=rtc/sdp&get=1&to="+to+"&from="+from,
-                type: "POST",
-                contentType: 'application/json',
-                dataType: 'jsonp',
-                crossDomain: true,
-                //data: {from: from, to: to},
-                async:true,
-                success: function(msg){
-                    try {               
-                        //let data = window.atob(msg);
-                        let data = window.atob(msg['sdp']);
-                        //console.log("OK");
-                        //console.log(data)
-                        data = JSON.parse(data);
-                        console.log("sdp type " + data.type)
-                        try {
-                            //data.sdp = data.sdp.replace("a=setup:active", "a=setup:passive");
-                        } catch(err) { console.log(err) }
-
-                        if(typeof data.type != "undefined" && data.type=="offer") {
-                            console.log("offer received "+ from+" " + pc[from].signalingState)
-                            //$("#connect"+userid).hide();
-                            //$("#answer"+from).show();
-                            if(typeof pc[from]!="undefined" && pc[from]!=null && pc[from].signalingState!="have-local-offer") {
-
-                             try { 
-                                pc[from].setRemoteDescription(data) //new RTCSessionDescription(data)
-                                   .then(() => pc[from].createAnswer())
-                                   .then(answer => pc[from].setLocalDescription(answer))
-                                   .then(() => send_sdp(window.btoa(JSON.stringify(pc[from].localDescription)), from))
-                                   .then(() => {
-                                       console.log("answer given to): " + from);
-                                       console.log("Remote streams (get_sdp -answer): " + from);
-                                         $("#video"+from).show();
-                                         var streams = pc[from].getRemoteStreams();
-                                         for (var stream of streams) {
-                                           if($("#video"+from).length==0) {
-                                             add_videobox(from, "")
-                                           }    
-                                           let _friendsVideo = document.getElementById("video"+from);
-                                           if(stream) {
-                                               _friendsVideo.srcObject = stream;                                       
-                                           }
-                                         }
-                                   })
-                                } catch(err) { console.log(err) }
-                            }
-                        }
-                        if(typeof data.type != "undefined" && data.type=="answer") {
-                            console.log("answer received "+ from+" " + pc[from].signalingState)
-                            if(typeof pc[from]!="undefined" && pc[from]!=null) { // && negotiating[userid]!="stable"
-                                try {  
-                                pc[from].setRemoteDescription(data).then(()=> {
-                                    $("#video"+from).show();
-                                    var streams = pc[from].getRemoteStreams();
-                                    for (var stream of streams) {
-                                        console.log("Remote streams (get_sdp): " + from);
-                                        if($("#video"+from).length==0) {
-                                          add_videobox(from, "")
-                                        }
-                                        let _friendsVideo = document.getElementById("video"+from);
-                                        _friendsVideo.srcObject = stream;      
-                                        $("#video"+from).show();
-                                    }
-                                }) //new RTCSessionDescription(data)
-                                } catch(err) { console.log(err) }
-                            }
-                        }
-                    }
-                    catch (err) { console.log(err) }
-
-                }, 
-                error:function() { 
-                },
-                fail : function() {
-                },
-                timeout : function() { 
-                },
-                abort : function() {
-                }
-            });
         }
     </script>
   </body>
