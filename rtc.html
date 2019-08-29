@@ -266,7 +266,7 @@
         function process_get_sdp(data, from) {
                 try {
                     let recvdata = $.trim(data);
-                    console.log("console.log(recvdata): "+recvdata)
+                    //console.log("console.log(recvdata): "+recvdata)
                     let _data = JSON.parse(recvdata);
                     if(_data.type=="send_sdp") {
                         if(_data.status=="OK") {
@@ -281,7 +281,7 @@
                             //console.log("OK");
                             //console.log(data)
                             data = JSON.parse(data);
-                            console.log("sdp type " + data.type)
+                            //console.log("sdp type " + data.type)
                             try {
                                 //data.sdp = data.sdp.replace("a=setup:active", "a=setup:passive");
                             } catch(err) { console.log(err) }
