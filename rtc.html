@@ -270,7 +270,7 @@
                     add_videobox(id, "")                
                 }
                 let _tempVideo = document.getElementById("video"+id+"_"+userid);
-                navigator.mediaDevices.getUserMedia({audio:true, video:true})
+                navigator.mediaDevices.getUserMedia({audio:false, video:true})
                 .then(thestream => _tempVideo.srcObject = thestream)
                 .then(thestream => pc[id].addStream(thestream))
                 .then(() => {
@@ -342,7 +342,7 @@
                         try {
                             pc[id].createOffer()
                             .then(offer => pc[id].setLocalDescription(offer) )
-                            .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id)//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
+                            .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
                             .then(() => console.log("offer sent to: "+id))
 
                             pc[id].onnegotiationneeded = function () {
