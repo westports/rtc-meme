@@ -319,12 +319,9 @@
                                     } catch(err) { console.log(err) }
                                 } else {
                                     //if(pc[from].signalingState!="stable" && pc[from].signalingState!="kStable" && pc[from].connectionState!="connected") {
-                                        //rtc_create(from);
+                                        rtc_create(from);
                                         //remove_user_element(from);
                                     //}
-                                    pc[from].createOffer()
-                                    .then(offer => pc[from].setLocalDescription(offer))
-                                    .then(() => send_sdp(window.btoa(JSON.stringify(pc[from].localDescription)), from))
                                 }
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
@@ -356,7 +353,7 @@
         }
         
         function rtc_create(id) {
-            //remove_user_element(id);
+            remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
@@ -425,10 +422,10 @@
                                }
                             } 
                             else {
-                                pc[id].createOffer()
+                                /*pc[id].createOffer()
                                .then(offer => pc[id].setLocalDescription(offer))
                                .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
-                                
+                                */
                                //rtc_create(id);
                                //remove_user_element(id);
                             }
@@ -472,7 +469,7 @@
 
                             pc[id].onnegotiationneeded = function () {
                                 try {
-                                    try {
+                                    /*try {
                                         console.log("Remote streams (answer btn): " + id);
                                         $("#video"+id).show();
                                           var streams = pc[id].getRemoteStreams();
@@ -487,10 +484,11 @@
                                             }
                                           }
                                     } catch(err) {console.log(err)}
-                                    /*pc[id].createOffer()
+                                    */
+                                    pc[id].createOffer()
                                     .then(offer => pc[id].setLocalDescription(offer))
                                     .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
-                                    */
+                                    
                             } catch(err) {  } 
                                 console.log("onnegotiationneeded offer sent to: "+id)
                             }
