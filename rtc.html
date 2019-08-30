@@ -353,7 +353,7 @@
         }
         
         function rtc_create(id) {
-            //remove_user_element(id);
+            remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
