@@ -325,7 +325,7 @@
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
                                 console.log("answer received "+ from+" " + pc[from].signalingState)
-                                if(typeof pc[from]!="undefined" && pc[from]!=null) { // && negotiating[userid]!="stable"
+                                if(typeof pc[from]!="undefined" && pc[from]!=null && pc[from].signalingState!="stable" && pc[from].signalingState!="kStable") { // && negotiating[userid]!="stable"
                                     try {  
                                     pc[from].setRemoteDescription(data).then(()=> {
                                         $("#video"+from).show();
