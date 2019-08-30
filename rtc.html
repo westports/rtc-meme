@@ -433,6 +433,17 @@
                             .then(offer => pc[id].setLocalDescription(offer) )
                             .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
                             .then(() => console.log("offer sent to: "+id))
+                            .then(() => {
+                                setTimeout(function(){
+                                    try {
+                                        pc[id].createOffer()
+                                        .then(offer => pc[id].setLocalDescription(offer) )
+                                        .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))
+                                    } catch(err) { console.log(err) }  
+                                    console.log("offer sent again to: "+id)
+                                    //$("#connect"+msguserid).hide();
+                                }, 5000)
+                            })
 
                             pc[id].onnegotiationneeded = function () {
                                 try {
