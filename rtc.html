@@ -320,6 +320,17 @@
                                 } else {
                                     if(pc[from].signalingState!="stable" && pc[from].signalingState!="kStable" && pc[from].connectionState!="connected") {
                                         rtc_create(from);
+                                    } else {
+                                        var streams = pc[from].getRemoteStreams();
+                                        for (var stream of streams) {
+                                            console.log("Remote streams (get_sdp): " + from);
+                                            if($("#video"+from).length==0) {
+                                              add_videobox(from, "")
+                                            }
+                                            let _friendsVideo = document.getElementById("video"+from);
+                                            _friendsVideo.srcObject = stream;      
+                                            $("#video"+from).show();
+                                        }
                                     }
                                 }
                             }
