@@ -125,16 +125,7 @@
                     if (rawdata.disconnect!=undefined) {
                         let obj = rawdata.disconnect;   
                         let msguserid = obj.user;
-                        remove_user_element(msguserid);  
-                        if($("span#user_"+id).length>0) {
-                            $("span#user_"+id).remove();
-                            $("#user-list").html("");
-                            $("#user_placeholder span").each(function(){
-                                $("#user-list").append($(this).text()+"\n");
-                            });                            
-                            var $textarea = $('#user-list');
-                            $textarea.scrollTop($textarea[0].scrollHeight);
-                        }
+                        remove_user_element(msguserid);                          
                         console.log("user "+msguserid+" removed..");
                         //setTimeout("send_identity();", 500);
                         return;
@@ -527,7 +518,7 @@
                 pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                /*if($("span#user_"+id).length>0) {
+                if($("span#user_"+id).length>0) {
                     $("span#user_"+id).remove();
                     $("#user-list").html("");
                     $("#user_placeholder span").each(function(){
@@ -535,7 +526,7 @@
                     });                            
                     var $textarea = $('#user-list');
                     $textarea.scrollTop($textarea[0].scrollHeight);
-                }*/
+                }
                 negotiating[id] = null;
                 negotiating.splice(id,1);
                 
