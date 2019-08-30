@@ -427,6 +427,7 @@
                                .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
                                 */
                                //rtc_create(id);
+                               remove_user_element(id);
                             }
                         } catch(err) { console.log(err) }   
                     }                           
