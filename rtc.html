@@ -272,7 +272,7 @@
                     //if(to!=userid) return;
                     
                     let recvdata = $.trim(data);
-                    console.log("console.log(recvdata): "+recvdata)
+                    //console.log("console.log(recvdata): "+recvdata)
                     let _data = JSON.parse(recvdata);
                     if(_data.type=="send_sdp") {
                         if(_data.status=="OK") {
@@ -284,8 +284,6 @@
                         try {               
                             //let data = window.atob(msg);
                             let data = window.atob(_data.sdp);
-                            //console.log("OK");
-                            //console.log(data)
                             data = JSON.parse(data);
                             //console.log("sdp type " + data.type)
                             try {
