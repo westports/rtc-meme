@@ -510,10 +510,10 @@
         function remove_user_element(id) {
             try { 
                 pc[id].close() 
-                pc[id] = null;       
+                pc[id] = null;    
+                pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                negotiating[id] = null;
                 if($("span#user_"+id).length>0) {
                     $("span#user_"+id).remove();
                     $("#user-list").html("");
@@ -523,6 +523,9 @@
                     var $textarea = $('#user-list');
                     $textarea.scrollTop($textarea[0].scrollHeight);
                 }
+                negotiating[id] = null;
+                negotiating.splice(id,1);
+                
             } catch(err) {}
         }
         
