@@ -125,7 +125,16 @@
                     if (rawdata.disconnect!=undefined) {
                         let obj = rawdata.disconnect;   
                         let msguserid = obj.user;
-                        remove_user_element(msguserid);     
+                        remove_user_element(msguserid);  
+                        if($("span#user_"+id).length>0) {
+                            $("span#user_"+id).remove();
+                            $("#user-list").html("");
+                            $("#user_placeholder span").each(function(){
+                                $("#user-list").append($(this).text()+"\n");
+                            });                            
+                            var $textarea = $('#user-list');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                        }
                         console.log("user "+msguserid+" removed..");
                         //setTimeout("send_identity();", 500);
                         return;
@@ -352,14 +361,7 @@
         }
         
         function rtc_create(id) {
-            //remove_user_element(id);
-            pc[id].close() 
-            pc[id] = null;    
-            pc.splice(id,1);
-            $("#video"+id).remove();
-            $("#videobox"+id).remove();
-            negotiating[id] = null;
-            negotiating.splice(id,1);
+            remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
@@ -525,7 +527,7 @@
                 pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                if($("span#user_"+id).length>0) {
+                /*if($("span#user_"+id).length>0) {
                     $("span#user_"+id).remove();
                     $("#user-list").html("");
                     $("#user_placeholder span").each(function(){
@@ -533,7 +535,7 @@
                     });                            
                     var $textarea = $('#user-list');
                     $textarea.scrollTop($textarea[0].scrollHeight);
-                }
+                }*/
                 negotiating[id] = null;
                 negotiating.splice(id,1);
                 
