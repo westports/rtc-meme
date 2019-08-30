@@ -469,7 +469,7 @@
 
                             pc[id].onnegotiationneeded = function () {
                                 try {
-                                    /*try {
+                                    try {
                                         console.log("Remote streams (answer btn): " + id);
                                         $("#video"+id).show();
                                           var streams = pc[id].getRemoteStreams();
@@ -484,11 +484,11 @@
                                             }
                                           }
                                     } catch(err) {console.log(err)}
-                                    */
-                                    pc[id].createOffer()
+                                    
+                                    /*pc[id].createOffer()
                                     .then(offer => pc[id].setLocalDescription(offer))
                                     .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
-                                    
+                                    */
                             } catch(err) {  } 
                                 console.log("onnegotiationneeded offer sent to: "+id)
                             }
