@@ -157,7 +157,7 @@
                             });                            
                             var $textarea = $('#user-list');
                             $textarea.scrollTop($textarea[0].scrollHeight);
-                            send_identity();
+                            //send_identity();
                         }
                     }
                     if(content.type == "quit") {
@@ -183,11 +183,16 @@
                               }
                           } catch(err) { }
 
+                        } else {
+                            rtc_create(content.sender);
                         }
                     }
                     if(content.type == "rtc_sdp") {
                         try {
                             if(content.to == userid) {
+                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null) {
+                                    rtc_create(content.sender);
+                                } 
                                 console.log(content.sender + " sending sdp, initiate get_sdp")
                                 get_sdp(content.sender, userid);            
                             }
@@ -353,7 +358,7 @@
         }
         
         function rtc_create(id) {
-            remove_user_element(id);
+            //remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
@@ -387,7 +392,17 @@
                             switch(pc[id].connectionState) {
                               case "connected":
                                 // The connection has become fully connected
-                                console.log("RTCPeerConnection connected for "+id)                                            
+                                console.log("RTCPeerConnection connected for "+id)   
+                                if($("span#user_"+id).length<=0) {
+                                    $("#user_placeholder").append("<span id='user_"+id+"'>"+id+"</span>");
+                                    $("#user-list").html("");
+                                    $("#user_placeholder span").each(function(){
+                                        $("#user-list").append($(this).text()+"\n");
+                                    });                            
+                                    var $textarea = $('#user-list');
+                                    $textarea.scrollTop($textarea[0].scrollHeight);
+                                    //send_identity();
+                                }
                                 break
                               case "disconnected":
                                 console.log("RTCPeerConnection disconnected for "+id)
