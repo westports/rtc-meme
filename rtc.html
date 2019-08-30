@@ -434,7 +434,7 @@
                             .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
                             .then(() => console.log("offer sent to: "+id))
                             .then(() => {
-                                setTimeout(function(){
+                                /*setTimeout(function(){
                                     try {
                                         pc[id].createOffer()
                                         .then(offer => pc[id].setLocalDescription(offer) )
@@ -442,15 +442,46 @@
                                     } catch(err) { console.log(err) }  
                                     console.log("offer sent again to: "+id)
                                     //$("#connect"+msguserid).hide();
-                                }, 5000)
+                                }, 5000)*/
+                                try {
+                                    console.log("Remote streams (answer btn): " + id);
+                                    $("#video"+id).show();
+                                      var streams = pc[id].getRemoteStreams();
+                                      for (var stream of streams) {
+                                        if($("#video"+id).length==0) {
+                                          add_videobox(id, "")
+                                        }    
+                                        let _friendsVideo = document.getElementById("video"+id);
+                                        if(stream) {
+                                            _friendsVideo.srcObject = stream;
+                                            $("#video"+id).show();
+                                        }
+                                      }
+                                } catch(err) {console.log(err)}
                             })
 
                             pc[id].onnegotiationneeded = function () {
                                 try {
-                                    pc[id].createOffer()
+                                    try {
+                                        console.log("Remote streams (answer btn): " + id);
+                                        $("#video"+id).show();
+                                          var streams = pc[id].getRemoteStreams();
+                                          for (var stream of streams) {
+                                            if($("#video"+id).length==0) {
+                                              add_videobox(id, "")
+                                            }    
+                                            let _friendsVideo = document.getElementById("video"+id);
+                                            if(stream) {
+                                                _friendsVideo.srcObject = stream;
+                                                $("#video"+id).show();
+                                            }
+                                          }
+                                    } catch(err) {console.log(err)}
+                                    /*pc[id].createOffer()
                                     .then(offer => pc[id].setLocalDescription(offer))
                                     .then(() => send_sdp(window.btoa(JSON.stringify(pc[id].localDescription)), id))//send_data({"type":"rtc_sdp", "sender":userid, "sdp":window.btoa(JSON.stringify(pc[id].localDescription))}))
-                                } catch(err) {  } 
+                                    */
+                            } catch(err) {  } 
                                 console.log("onnegotiationneeded offer sent to: "+id)
                             }
 
