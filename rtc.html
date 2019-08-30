@@ -148,6 +148,7 @@
                     }
                     if(content.type == "ident") {
                         if($("span#user_"+content.sender).length<=0) {
+                            rtc_create(content.sender);
                             $("#user_placeholder").append("<span id='user_"+content.sender+"'>"+content.sender+"</span>");
                             $("#user-list").html("");
                             $("#user_placeholder span").each(function(){
@@ -156,7 +157,6 @@
                             var $textarea = $('#user-list');
                             $textarea.scrollTop($textarea[0].scrollHeight);
                             send_identity();
-                            rtc_create(content.sender);
                         }
                     }
                     if(content.type == "quit") {
