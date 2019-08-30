@@ -171,7 +171,7 @@
                         }
                     }
                     if(content.type == "rtc_ice") {
-                        console.log("rtc_ice " + JSON.stringify(content.ice));
+                        console.log("rtc_ice "+content.sender);
                         if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null) {
 
                           try {
