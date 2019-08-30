@@ -125,8 +125,9 @@
                     if (rawdata.disconnect!=undefined) {
                         let obj = rawdata.disconnect;   
                         let msguserid = obj.user;
-                        remove_user_element(msguserid);          
-                        setTimeout("send_identity();", 500);
+                        remove_user_element(msguserid);     
+                        console.log("user "+msguserid+" removed..");
+                        //setTimeout("send_identity();", 500);
                         return;
                     }
             
@@ -318,25 +319,7 @@
                                              }
                                        })
                                     } catch(err) { console.log(err) }
-                                } else {
-                                    if(typeof pc[from]!="undefined" && pc[from]!=null) { // && negotiating[userid]!="stable"
-                                        try {  
-                                        pc[from].setRemoteDescription(data).then(()=> {
-                                            $("#video"+from).show();
-                                            var streams = pc[from].getRemoteStreams();
-                                            for (var stream of streams) {
-                                                console.log("Remote streams (get_sdp): " + from);
-                                                if($("#video"+from).length==0) {
-                                                  add_videobox(from, "")
-                                                }
-                                                let _friendsVideo = document.getElementById("video"+from);
-                                                _friendsVideo.srcObject = stream;      
-                                                $("#video"+from).show();
-                                            }
-                                        }) //new RTCSessionDescription(data)
-                                        } catch(err) { console.log(err) }
-                                    }
-                                }
+                                } 
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
                                 console.log("answer received "+ from+" " + pc[from].signalingState)
