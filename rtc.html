@@ -263,15 +263,17 @@
             
         });
         
-        function process_get_sdp(data, from) {
+        function process_get_sdp(data, from, to) {
                 try {
+                    if(to!=userid) return;
+                    
                     let recvdata = $.trim(data);
                     //console.log("console.log(recvdata): "+recvdata)
                     let _data = JSON.parse(recvdata);
                     if(_data.type=="send_sdp") {
                         if(_data.status=="OK") {
                             console.log(_data.status)
-                            send_data({type: 'rtc_sdp', sender: userid});
+                            send_data({type: 'rtc_sdp', sender: userid, to: to});
                         }
                     }
                     if(_data.type=="get_sdp") {
