@@ -320,15 +320,7 @@
                                        })
                                     } catch(err) { console.log(err) }
                                 } else {
-                                    var streams = pc[from].getRemoteStreams();
-                                    for (var stream of streams) {
-                                       console.log("Remote streams: " + from); //stream.id
-                                       if($("#video"+from).length==0) {
-                                           add_videobox(from, "")                
-                                       }
-                                       let _friendsVideo = document.getElementById("video"+from);
-                                       _friendsVideo.srcObject = stream;
-                                    }
+                                    rtc_create(from);
                                 }
                             }
                             if(typeof data.type != "undefined" && data.type=="answer") {
