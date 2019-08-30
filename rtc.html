@@ -186,8 +186,10 @@
                     }
                     if(content.type == "rtc_sdp") {
                         try {
-                            console.log(content.sender + " sending sdp, initiate get_sdp")
-                            get_sdp(content.sender, userid);                      
+                            if(content.to == userid) {
+                                console.log(content.sender + " sending sdp, initiate get_sdp")
+                                get_sdp(content.sender, userid);            
+                            }
                         } catch(err) { console.log(err) }
 
                         
@@ -274,7 +276,7 @@
                     if(_data.type=="send_sdp") {
                         if(_data.status=="OK") {
                             console.log(_data.status)
-                            send_data({type: 'rtc_sdp', sender: userid});
+                            send_data({type: 'rtc_sdp', sender: userid, to: to});
                         }
                     }
                     if(_data.type=="get_sdp") {
