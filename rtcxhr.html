@@ -184,7 +184,7 @@
         
         function push_signal(data, to) {
             if(ngrokurl!="") {
-                data = window.btoa(data)
+                data = window.btoa(JSON.stringify(data));
                 let d = new Date();
                 let n = d.getTime();
                 $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&to="+to+"&data="+data+"'>");
