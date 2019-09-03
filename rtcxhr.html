@@ -323,7 +323,7 @@
                     pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
                     .then(() => pc[id].createAnswer())
                     .then(answer => pc[id].setLocalDescription(answer))
-                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
+                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
                     .then(() => {
                         console.log("answer given to): " + id);
                         console.log("get remote streams: " + id);
@@ -360,8 +360,8 @@
                     pc[id].onicecandidate = function(event) {
                         //console.log(event.candidate);
                         if(event.candidate) {
-                            let msg = {"type":"rtc_ice", "sender":id, "ice":event.candidate};
-                            push_signal(msg);
+                            let msg = {"type":"rtc_ice", "sender":userid, "ice":event.candidate};
+                            push_signal(msg, id);
                         }
                     }  
                     pc[id].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
