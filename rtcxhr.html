@@ -181,7 +181,7 @@
             if(ngrokurl!="") {
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"'>");
+                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"&id="+userid+"'>");
                 setTimeout(function(){ $("#scripthello_signal"+n).remove() }, 3000)    
             }
         }
@@ -191,7 +191,7 @@
                 data = window.btoa(data)
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&to="+to+"&sdp="+data+"'>");
+                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&to="+to+"&data="+data+"'>");
                 setTimeout(function(){ $("#scriptpush_signal"+n).remove() }, 3000)          
             }
         }
