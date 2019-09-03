@@ -115,6 +115,7 @@
             try {
                 
                 let json_main = window.atob(data);
+                console.log(json_main)
                 let recvdata = JSON.parse(json_main);     
                 if(type == "hello") {
                     let tmpuserlist = [];
