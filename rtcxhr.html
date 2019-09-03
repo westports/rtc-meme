@@ -104,7 +104,7 @@
         };
         
         function get_server_url() {
-            let url = "https://raw.githubusercontent.com/westports/rtc-meme/master/url.md";
+            let url = "https://westports.github.io/rtc-meme/url.js";
             let d = new Date();
             let n = d.getTime();
             $("#script_placeholder").append("<script id='scriptget_server_url"+n+"' src='"+url+"'>");
@@ -133,10 +133,11 @@
                         }
                         tmpuserlist.push(obj)
                     });
-                    $("#user_placeholder span").each(function(){
+                    $("#user_placeholder span").each(function(){ //get disconnected users
                         let id = $(this).text();
                         if(tmpuserlist.indexOf($(this).text())<0) {
                             $("#user_"+id).remove();
+                            remove_user_element(id);
                         }
                     }); 
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
@@ -149,7 +150,7 @@
                             var $textarea = $('#msg');
                             $textarea.scrollTop($textarea[0].scrollHeight);
                             console.log(ev.data);
-                        } else if(json.type == "rtc_ice") {
+                        } else if(json.type == "rtc_ice") { //rtc related starts here
                             console.log("rtc_ice "+json.sender);
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
 
@@ -544,15 +545,6 @@
                 pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                if($("span#user_"+id).length>0) {
-                    $("span#user_"+id).remove();
-                    $("#user-list").html("");
-                    $("#user_placeholder span").each(function(){
-                        $("#user-list").append($(this).text()+"\n");
-                    });                            
-                    var $textarea = $('#user-list');
-                    $textarea.scrollTop($textarea[0].scrollHeight);
-                }
                 negotiating[id] = null;
                 negotiating.splice(id,1);
                 
