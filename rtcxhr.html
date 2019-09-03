@@ -115,12 +115,11 @@
             try {
                 
                 let json_main = window.atob(data);
-                console.log(json_main)
                 let recvdata = JSON.parse(json_main);     
                 if(type == "hello") {
                     let tmpuserlist = [];
                     $.each(recvdata, function(idx, obj) { 
-                        if(obj!=userid) {
+                        if(obj!=userid && obj!=null && obj!=undefined) {
                             if($("span#user_"+obj).length<=0) {
                                 //rtc_create(obj);
                                 $("#user_placeholder").append("<span id='user_"+obj+"'>"+obj+"</span>");
@@ -144,8 +143,8 @@
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
                 } else if(type == "get") {
                     $.each(recvdata, function(idx, obj) {
-                        let raw = window.atob(obj);
-                        let json = JSON.parse(raw);
+                        //let raw = window.atob(obj);
+                        let json = JSON.parse(obj);
                         if(json.type=="chat") {
                             $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
                             var $textarea = $('#msg');
