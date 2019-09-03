@@ -143,8 +143,8 @@
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
                 } else if(type == "get") {
                     $.each(recvdata, function(idx, obj) {
-                        //let raw = window.atob(obj);
-                        let json = JSON.parse(obj);
+                        let raw = window.atob(obj);
+                        let json = JSON.parse(raw);
                         if(json.type=="chat") {
                             $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
                             var $textarea = $('#msg');
