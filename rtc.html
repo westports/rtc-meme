@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-    <title>Westports RTC</title>
+    <title>Westports RTC3</title>
     <style type="text/css">
         #user_placeholder {
             display: none;
@@ -82,8 +82,11 @@
         var yourVideo = document.getElementById("localVideo");
         var pc = [];
         var negotiating = [];
-        var setsdp = [];
-        var getsdp = [];
+        var hello_push = [];
+        var signal_push = [];
+        var signal_get = [];
+        var init_signal_int = null;
+        var ngrokurl = "";
         //webRTC
         var configuration = {
          iceServers: [  
@@ -100,6 +103,107 @@
          {urls:"stun:stun.l.google.com:19302"}]
         };
         
+        function get_server_url() {
+            let url = "https://raw.githubusercontent.com/westports/rtc-meme/master/url.md";
+            let d = new Date();
+            let n = d.getTime();
+            $("#script_placeholder").append("<script id='scriptget_server_url"+n+"' src='"+url+"'>");
+            setTimeout(function(){ hello_signal() }, 2000) 
+        }
+        
+        function process_signal(data, type) {
+            try {
+                
+                let json_main = window.atob(data);
+                let recvdata = JSON.parse(json_main);     
+                if(type == "hello") {
+                    let tmpuserlist = [];
+                    $.each(recvdata, function(idx, obj) { 
+                        if(obj!=userid) {
+                            if($("span#user_"+obj).length<=0) {
+                                //rtc_create(obj);
+                                $("#user_placeholder").append("<span id='user_"+obj+"'>"+obj+"</span>");
+                                $("#user-list").html("");
+                                $("#user_placeholder span").each(function(){
+                                    $("#user-list").append($(this).text()+"\n");
+                                });                            
+                                var $textarea = $('#user-list');
+                                $textarea.scrollTop($textarea[0].scrollHeight);
+                            }
+                        }
+                        tmpuserlist.push(obj)
+                    });
+                    $("#user_placeholder span").each(function(){ //get disconnected users
+                        let id = $(this).text();
+                        if(tmpuserlist.indexOf($(this).text())<0) {
+                            $("#user_"+id).remove();
+                            remove_user_element(id);
+                        }
+                    }); 
+                    $("#socket_status").html("Connected to "+channel+" ("+room+")");
+                } else if(type == "get") {
+                    $.each(recvdata, function(idx, obj) {
+                        let raw = window.atob(obj);
+                        let json = JSON.parse(raw);
+                        if(json.type=="chat") {
+                            $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
+                            var $textarea = $('#msg');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                            console.log(ev.data);
+                        } else if(json.type == "rtc_ice") { //rtc related starts here
+                            console.log("rtc_ice "+json.sender);
+                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
+
+                              try {
+                                  var tempicedata = JSON.parse(json.ice);     
+                                  if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
+                                      pc[json.sender].addIceCandidate(tempicedata);
+                                      console.log("addIceCandidate " + json.sender);
+                                  }
+                              } catch(err) { }
+
+                            } else {
+                                rtc_create(json.sender);
+                            }
+                        } else if(json.type == "rtc_sdp") {
+                            try {
+                                get_sdp(json.sender, userid);
+                            } catch(err) { console.log(err) }
+                        }
+                    });
+                }
+            
+            } catch(err) { console.log(err) }
+        }
+        
+        function hello_signal() {
+            if(ngrokurl!="") {
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"'>");
+                setTimeout(function(){ $("#scripthello_signal"+n).remove() }, 3000)    
+            }
+        }
+        
+        function push_signal(data, to) {
+            if(ngrokurl!="") {
+                data = window.btoa(data)
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&to="+to+"&sdp="+data+"'>");
+                setTimeout(function(){ $("#scriptpush_signal"+n).remove() }, 3000)          
+            }
+        }
+        
+        function get_signal() {
+            if(ngrokurl!="") {
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").html("<script id='scriptget_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&get=1&id="+userid+"'>");
+                setTimeout(function(){ $("#scriptget_signal"+n).remove() }, 3000)
+            }
+        }        
+        
         $(document).ready(function(){
             var url_string = document.location.href;
             var url = new URL(url_string);
@@ -109,123 +213,30 @@
             if(c!="" && d!="" && e!="") {
                 userid = c; $("#username").val(userid); channel = d; room = e;
             }
-
-            socket = new WebSocket("wss://172.21.95.210/wss");
             
-            socket.onopen = function(ev) { // connection is open   
-                $("#socket_status").html("Connected to "+channel+" ("+room+")");
-                register_zone();
-                setTimeout("send_identity();", 100); 
-                console.log("websocket connected..");
-            }
-            
-            socket.onmessage = function(ev) {
-                try {
-                    let rawdata = JSON.parse(ev.data);
-                    if (rawdata.disconnect!=undefined) {
-                        let obj = rawdata.disconnect;   
-                        let msguserid = obj.user;
-                        remove_user_element(msguserid);                          
-                        console.log("user "+msguserid+" removed..");
-                        //setTimeout("send_identity();", 500);
-                        return;
-                    }
-            
-                    if (typeof rawdata.data=="undefined") {
-                        return;
-                    }
-                    let msgbody = rawdata.data;
-                    let msgfrom = msgbody.id;
-                    //console.log(msgbody)
-                    if(msgbody.datas==undefined || msgfrom==userid) return;
-                    
-                    let content = JSON.parse(msgbody.datas);
-                    //console.log(content)
-                    if(content.type == "msg") {
-                        $("#msg").append(get_date_str_jscript(get_dtime())+" - "+content.sender+": "+content.msg+"\n");
-                        var $textarea = $('#msg');
-                        $textarea.scrollTop($textarea[0].scrollHeight);
-                        console.log(ev.data);
-                    }
-                    if(content.type == "ident") {
-                        if($("span#user_"+content.sender).length<=0) {
-                            rtc_create(content.sender);
-                            $("#user_placeholder").append("<span id='user_"+content.sender+"'>"+content.sender+"</span>");
-                            $("#user-list").html("");
-                            $("#user_placeholder span").each(function(){
-                                $("#user-list").append($(this).text()+"\n");
-                            });                            
-                            var $textarea = $('#user-list');
-                            $textarea.scrollTop($textarea[0].scrollHeight);
-                            //send_identity();
-                        }
-                    }
-                    if(content.type == "quit") {
-                        if($("span#user_"+content.sender).length>0) {
-                            $("span#user_"+content.sender).remove();
-                            $("#user-list").html("");
-                            $("#user_placeholder span").each(function(){
-                                $("#user-list").append($(this).text()+"\n");
-                            });                            
-                            var $textarea = $('#user-list');
-                            $textarea.scrollTop($textarea[0].scrollHeight);
-                        }
-                    }
-                    if(content.type == "rtc_ice") {
-                        console.log("rtc_ice "+content.sender);
-                        if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null) {
-
-                          try {
-                              var tempicedata = JSON.parse(content.ice);     
-                              if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                  pc[content.sender].addIceCandidate(tempicedata);
-                                  console.log("addIceCandidate " + content.sender);
-                              }
-                          } catch(err) { }
-
-                        } else {
-                            rtc_create(content.sender);
-                        }
-                    }
-                    if(content.type == "rtc_sdp") {
-                        try {
-                            if(content.to == userid) {
-                                if(typeof pc[content.sender]!="undefined" && pc[content.sender]!=null) {
-                                    rtc_create(content.sender);
-                                } 
-                                console.log(content.sender + " sending sdp, initiate get_sdp")
-                                get_sdp(content.sender, userid);            
-                            }
-                        } catch(err) { console.log(err) }
-
-                        
-                    }
-                } catch(err) {}
-            }
-            
-            socket.onerror = function(ev){
-                $("#socket_status").html("Connection Error!"); 
-                console.log("websocket error"+ev)
-            }; 
-            socket.onclose = function(ev){ 
-                let msg = {"type":"quit", "sender":userid};
-                send_data(msg);
-                $("#socket_status").html("Error!"); 
-                console.log("websocket close"+ev)
-            };
+            get_server_url();
+            //start communicating with signal server
+            setInterval(function(){
+                get_signal();
+            }, 2000);     
             
             $("#send_btn").click(function(){
-                let msg = {"type":"msg", "sender":userid, "msg":$("#msg_content").val()};
-                send_data(msg);
-                $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
-                var $textarea = $('#msg');
-                $textarea.scrollTop($textarea[0].scrollHeight);
-                $("#msg_content").val("");
+                if($("#msg_content").val()!="") {
+                    let msg = {"type":"chat", "sender":userid, "msg":$("#msg_content").val()};
+                    $("#user_placeholder span").each(function(){
+                        let to = $(this).text();
+                        push_signal(msg, to);
+                    });                    
+                    $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
+                    var $textarea = $('#msg');
+                    $textarea.scrollTop($textarea[0].scrollHeight);
+                    $("#msg_content").val("");
+                }
             });
             
             //broadcast own id
-            setInterval(function(){
-                send_identity();
+            setInterval(function(){                
+                hello_signal();
             }, 5000);
             
             //rtc start here
@@ -268,7 +279,6 @@
                     socket.close();
                 }
             });    
-            //rtc
             
         });
         
@@ -358,7 +368,6 @@
         }
         
         function rtc_create(id) {
-            //remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
@@ -536,46 +545,15 @@
                 pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                if($("span#user_"+id).length>0) {
-                    $("span#user_"+id).remove();
-                    $("#user-list").html("");
-                    $("#user_placeholder span").each(function(){
-                        $("#user-list").append($(this).text()+"\n");
-                    });                            
-                    var $textarea = $('#user-list');
-                    $textarea.scrollTop($textarea[0].scrollHeight);
-                }
                 negotiating[id] = null;
                 negotiating.splice(id,1);
                 
             } catch(err) {}
         }
         
-        function register_zone() {        
-            var msg = {"command":{"identify":userid, "zone":channel+room}};
-            if(socket!=null) {
-                socket.send(JSON.stringify(msg));
-            }
-        }
-        
-        function send_data(msg) {
-            msg = JSON.stringify(msg);
-            var obj;
-            obj = {"data":{"id":userid, "zone":channel+room, "datas":msg}};
-            if(socket!=null) {
-                try {
-                socket.send(JSON.stringify(obj));
-                } catch(err) {console.log("websocket send_data "+err.message)}
-            } else {
-                try {
-                    //start_websocket();
-                } catch(err) {}
-            }
-        }
-        
         function send_identity() {
             let msg = {"type":"ident", "sender":userid};
-            send_data(msg);
+            push_signal(msg);
         }
         
         function get_dtime() {
@@ -619,16 +597,6 @@
             const deviceInfo = deviceInfos[i];
             //console.log('Found device: ', deviceInfo);
           }
-        }
-        
-        function send_sdp(sdp_data, _to) {
-            $("#script_placeholder").append("<script id='scriptsend_sdp"+_to+"' src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&push=1&to="+_to+"&from="+userid+"&sdp="+sdp_data+"'>");
-            setTimeout(function(){ $("#scriptsend_sdp"+_to).remove() }, 3000)            
-        }
-        
-        function get_sdp(from, to) {
-            $("#script_placeholder").html("<script id='scriptget_sdp"+to+"' src='https://172.21.95.210/utils/?t=empty&app=rtc/sdp&get=1&to="+to+"&from="+from+"'>");
-            setTimeout(function(){ $("#scriptget_sdp"+to).remove() }, 3000)
         }
     </script>
   </body>
