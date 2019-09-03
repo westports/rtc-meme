@@ -143,36 +143,34 @@
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
                 } else if(type == "get") {
                     $.each(recvdata, function(idx, obj) {
-                        $.each(obj, function(_idx, _obj){
-                            let raw = window.atob(_obj);
-                            alert(raw)
-                            let json = JSON.parse(raw);
-                            if(json.type=="chat") {
-                                $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
-                                var $textarea = $('#msg');
-                                $textarea.scrollTop($textarea[0].scrollHeight);
-                                console.log(ev.data);
-                            } else if(json.type == "rtc_ice") { //rtc related starts here
-                                console.log("rtc_ice "+json.sender);
-                                if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
+                        let raw = window.atob(obj);
+                        console.log(raw)
+                        let json = raw;
+                        if(json.type=="chat") {
+                            $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
+                            var $textarea = $('#msg');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
+                            console.log(ev.data);
+                        } else if(json.type == "rtc_ice") { //rtc related starts here
+                            console.log("rtc_ice "+json.sender);
+                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
 
-                                  try {
-                                      var tempicedata = JSON.parse(json.ice);     
-                                      if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                          pc[json.sender].addIceCandidate(tempicedata);
-                                          console.log("addIceCandidate " + json.sender);
-                                      }
-                                  } catch(err) { }
+                              try {
+                                  var tempicedata = JSON.parse(json.ice);     
+                                  if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
+                                      pc[json.sender].addIceCandidate(tempicedata);
+                                      console.log("addIceCandidate " + json.sender);
+                                  }
+                              } catch(err) { }
 
-                                } else {
-                                    rtc_create(json.sender);
-                                }
-                            } else if(json.type == "rtc_sdp") {
-                                try {
-                                    get_sdp(json.sender, userid);
-                                } catch(err) { console.log(err) }
+                            } else {
+                                rtc_create(json.sender);
                             }
-                        })                        
+                        } else if(json.type == "rtc_sdp") {
+                            try {
+                                get_sdp(json.sender, userid);
+                            } catch(err) { console.log(err) }
+                        }
                     });
                 }
             
