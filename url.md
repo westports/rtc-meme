@@ -1,1 +1,1 @@
-var ngrokurl = 'https://c5a5074e.ap.ngrok.io/';
+ngrokurl = 'https://c5a5074e.ap.ngrok.io/';
