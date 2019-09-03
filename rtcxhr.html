@@ -121,8 +121,7 @@
                     let tmpuserlist = [];
                     $.each(recvdata, function(idx, obj) { 
                         if(obj!=userid && obj!=null && obj!=undefined) {
-                            if($("span#user_"+obj).length<=0) {
-                                //rtc_create(obj);
+                            if($("span#user_"+obj).length<=0) {                                
                                 $("#user_placeholder").append("<span id='user_"+obj+"'>"+obj+"</span>");
                                 $("#user-list").html("");
                                 $("#user_placeholder span").each(function(){
@@ -130,6 +129,7 @@
                                 });                            
                                 var $textarea = $('#user-list');
                                 $textarea.scrollTop($textarea[0].scrollHeight);
+                                rtc_create(obj);
                             }
                         }
                         tmpuserlist.push(obj)
