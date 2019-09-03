@@ -144,7 +144,9 @@
                 } else if(type == "get") {
                     $.each(recvdata, function(idx, obj) {
                         let raw = window.atob(obj);
-                        console.log(raw)
+                        $.each(raw, function(x, _obj) {                            
+                            console.log(_obj)
+                        })
                         let json = raw;
                         if(json.type=="chat") {
                             $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
