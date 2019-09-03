@@ -145,10 +145,8 @@
                 } else if(type == "get") {
                     let json = recvdata;
                     if(json.type=="chat") {
-                        $("#msg").append(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg+"\n");
-                        var $textarea = $('#msg');
-                        $textarea.scrollTop($textarea[0].scrollHeight);
-                        console.log(recvdata);
+                        addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
+                        //console.log(recvdata);
                     } else if(json.type == "rtc_ice") { //rtc related starts here
                         console.log("rtc_ice "+json.sender);
                         if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
@@ -162,21 +160,45 @@
                           } catch(err) { }
 
                         }
-                    } else if(json.type == "rtc_offer") {  //offer received, create answer
-                        try {
-                            offer[json.sender] = 1;
+                    } else if(json.type == "sdp") {  //offer received, create answer
+                        try {                            
                             let sdp = JSON.parse(json.sdp);
-                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {                                
-                                rtc_create_answer(json.sender, sdp);
-                            } else {
-                                rtc_create(json.sender).then(rtc_create_answer(json.sender, sdp));
-                                
-                            }
+                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
+                                if(sdp.type == "offer") {
+                                    offer[json.sender] = 1;
+                                    addtochat(get_date_str_jscript(get_dtime())+" - rtc offer received from "+json.sender);
+                                    rtc_create_answer(json.sender, sdp); 
+                                }
+                                if(sdp.type == "answer") {
+                                    try {  
+                                        addtochat(get_date_str_jscript(get_dtime())+" - rtc answer received from "+json.sender);
+                                        pc[json.sender].setRemoteDescription(sdp).then(()=> {
+                                            $("#video"+json.sender).show();
+                                            var streams = pc[json.sender].getRemoteStreams();
+                                            for (var stream of streams) {
+                                                console.log("Remote streams answer sdp: " + json.sender);
+                                                if($("#video"+json.sender).length==0) {
+                                                  add_videobox(json.sender, "")
+                                                }
+                                                let _friendsVideo = document.getElementById("video"+json.sender);
+                                                _friendsVideo.srcObject = stream;      
+                                                $("#video"+json.sender).show();
+                                            }
+                                        }) 
+                                    } catch(err) { console.log(err) }
+                                }
+                            } 
                         } catch(err) { console.log(err) }
                     }
                 }
             
             } catch(err) { console.log(err) }
+        }
+        
+        function addtochat(msg) {
+            $("#msg").append(msg+"\n");
+            var $textarea = $('#msg');
+            $textarea.scrollTop($textarea[0].scrollHeight);
         }
         
         function hello_signal() {
@@ -285,23 +307,23 @@
         });
         
         function rtc_create_offer(id) {
-            if((typeof pc[id]!="undefined" || pc[id]!=null)) {
+            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer" && (offer[id]==null || offer[id]==undefined)) {
                 try {
                     pc[id].createOffer()
                     .then(offer => pc[id].setLocalDescription(offer) )
-                    .then(() => push_signal({"type":"rtc_offer", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))//socket.send(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))) 
+                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))//socket.send(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))) 
                     .then(() => console.log("offer sent to: "+id))
                 } catch(err) {console.log(err)}
             }
         }
         
         function rtc_create_answer(id, sdp) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && && pc[id].signalingState!="have-local-offer") {
+            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer") {
                 try {
                     pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
                     .then(() => pc[id].createAnswer())
                     .then(answer => pc[id].setLocalDescription(answer))
-                    .then(() => push_signal({"type":"rtc_answer", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
+                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))
                     .then(() => {
                         console.log("answer given to): " + id);
                         console.log("get remote streams: " + id);
@@ -375,7 +397,7 @@
 
                     pc[id].onaddstream = (event) => {
                         try {
-                            if(event.stream) {                                    
+                            //if(event.stream) {                                    
                                $("#video"+id).show();
                                var streams = pc[id].getRemoteStreams();
                                for (var stream of streams) {
@@ -386,7 +408,7 @@
                                   let _friendsVideo = document.getElementById("video"+id);
                                   _friendsVideo.srcObject = stream;
                                }
-                            }
+                            //}
                         } catch(err) { console.log(err) }   
                     }         
                 })
