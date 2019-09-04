@@ -378,7 +378,7 @@
             $("#connect"+id).click(function(){
                 let _tempVideo = document.getElementById("video"+id);
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
-                  _tempVideo.src = URL.createObjectURL(stream);
+                  _tempVideo.srcObject = stream; 
                   pc[id].addStream(stream);
                   createAndSendOffer(id);
                 }, function (error) { console.log( error);});
@@ -386,7 +386,7 @@
             $("#answer"+id).click(function(){
                 let _tempVideo = document.getElementById("video"+id+"_"+userid);
                 navigator.getUserMedia({ "audio": false, "video": true }, function (stream) {
-                    _tempVideo.src = URL.createObjectURL( stream);
+                    _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
                     createAndSendAnswer(id);
                   }, function(error) { console.log(error);});
