@@ -383,11 +383,29 @@
             createAndSendAnswer(id);
           };
           
-          function createAndSendAnswer(id) {
+          /*function createAndSendAnswer(id) {
             pc[id].createAnswer()
             .then(answer => pc[id].setLocalDescription(answer))
             .then(() => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(pc[id].localDescription)}, id))
-          }       
+          }*/
+          
+          function createAndSendAnswer(id) {
+            pc[id].createAnswer(
+              function (answer) {
+                var ans = new RTCSessionDescription( answer);
+                pc[id].setLocalDescription( ans, function() {
+                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(ans)}, id))
+                  }, 
+                  function (error) { 
+                    console.log( error);
+                  }
+                );
+              },
+              function (error) { 
+                console.log( error);
+              }
+            );
+          }
         
         function add_videobox(id, _class) {
             let muted = (_class=="hide")? "muted" : "";
