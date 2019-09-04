@@ -173,7 +173,7 @@
                             console.log("sdp: "+json.sdp)
                             let sdp = json.sdp;
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { 
-                                pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp.sdp));
+                                pc[json.sender].setRemoteDescription(sdp.sdp);
                                 if(sdp.type=="offer") {
                                     answerCall(json.sender);
                                 }
@@ -330,8 +330,8 @@
         function createAndSendOffer(id) {
             pc[id].createOffer(
               function (offer) {
-                var off = new RTCSessionDescription( offer);
-                pc[id].setLocalDescription( new RTCSessionDescription( off), 
+                var off = new RTCSessionDescription(offer);
+                pc[id].setLocalDescription(off), 
                   function() {
                     push_signal({"type":"sdp", "sender":userid, "sdp": off }, id);
                   }, 
@@ -354,7 +354,7 @@
           function createAndSendAnswer(id) {
             pc[id].createAnswer(
               function (answer) {
-                var ans = new RTCSessionDescription( answer);
+                var ans = new RTCSessionDescription(answer);
                 pc[id].setLocalDescription( ans, function() {
                     push_signal({"type":"sdp", "sender":userid, "sdp": ans }, id);
                   }, 
