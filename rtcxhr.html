@@ -394,7 +394,7 @@
               function (answer) {
                 var ans = new RTCSessionDescription( answer);
                 pc[id].setLocalDescription( ans, function() {
-                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(ans)}, id))
+                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(ans)}, id)
                   }, 
                   function (error) { 
                     console.log( error);
