@@ -140,12 +140,13 @@
                         let id = $(this).text();
                         if(tmpuserlist.indexOf(id)<0) {
                             $("#user_"+id).remove();
+                            remove_user_element(id);
                             $("#user-list").html("");
                             $("#user_placeholder span").each(function(){
                                 $("#user-list").append($(this).text()+"\n");
                             });                            
                             var $textarea = $('#user-list');
-                            $textarea.scrollTop($textarea[0].scrollHeight);
+                            $textarea.scrollTop($textarea[0].scrollHeight);                            
                         }
                     }); 
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
@@ -316,8 +317,7 @@
             });                
         });
         
-        function prepareCall(id) {
-            addtochat(get_date_str_jscript(get_dtime())+" - prepareCall for "+id);
+        function prepareCall(id) {            
             if($("#video"+id+"_"+userid).length==0) {
                 add_videobox(id+"_"+userid, "hide")                
             }
@@ -325,6 +325,7 @@
                 add_videobox(id, "")                
             }
             if(pc[id]==null || pc[id]==undefined) {
+                addtochat(get_date_str_jscript(get_dtime())+" - prepareCall for "+id);
                 pc[id] = new RTCPeerConnection(configuration);
                 pc[id].onicecandidate = function(evt) {
                     if (!evt || !evt.candidate) return;
