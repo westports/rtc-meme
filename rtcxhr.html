@@ -347,7 +347,7 @@
           };
           
           function answerCall(id) {
-            prepareCall(id)
+            //prepareCall(id)
             createAndSendAnswer(id);
           };
           
@@ -387,10 +387,10 @@
             </div>";
             $("#remoteViewContainer").append(html);
             $("#connect"+id).click(function(){
-                  createAndSendOffer(id);
+                createAndSendOffer(id);
             })
             $("#answer"+id).click(function(){
-                    createAndSendAnswer(id);
+                createAndSendAnswer(id);
             })
         }
         
