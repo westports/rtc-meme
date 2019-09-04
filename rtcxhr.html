@@ -179,19 +179,19 @@
                                     answerCall(json.sender);
                                 } else {
                                     try {  
-                                    //pc[json.sender].setRemoteDescription(sdp).then(()=> {
-                                        $("#video"+json.sender).show();
-                                        var streams = pc[json.sender].getRemoteStreams();
-                                        for (var stream of streams) {
-                                            console.log("Remote streams (get_sdp): " + json.sender);
-                                            if($("#video"+json.sender).length==0) {
-                                              add_videobox(json.sender, "")
-                                            }
-                                            let _friendsVideo = document.getElementById("video"+json.sender);
-                                            _friendsVideo.srcObject = stream;      
+                                        pc[json.sender].setRemoteDescription(sdp).then(()=> {
                                             $("#video"+json.sender).show();
-                                        }
-                                    //}) 
+                                            var streams = pc[json.sender].getRemoteStreams();
+                                            for (var stream of streams) {
+                                                console.log("Remote streams (get_sdp): " + json.sender);
+                                                if($("#video"+json.sender).length==0) {
+                                                  add_videobox(json.sender, "")
+                                                }
+                                                let _friendsVideo = document.getElementById("video"+json.sender);
+                                                _friendsVideo.srcObject = stream;      
+                                                $("#video"+json.sender).show();
+                                            }
+                                        }) 
                                     } catch(err) { console.log(err) }
                                 }
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
