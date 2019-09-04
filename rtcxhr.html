@@ -160,9 +160,9 @@
 
                           try {    
                               //if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                  let tmpcandidate = json.candidate;
-                                  pc[json.rtc_id].addIceCandidate(new RTCIceCandidate(tmpcandidate.candidate));
-                                  console.log("addIceCandidate " + json.rtc_id + " " + tmpcandidate.candidate);
+                                  //let tmpcandidate = json.candidate;
+                                  pc[json.rtc_id].addIceCandidate(new RTCIceCandidate(json.candidate));
+                                  console.log("addIceCandidate " + json.rtc_id + " " + JSON.stringify((json.candidate)));
                                   addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.rtc_id);
                               //}
                           } catch(err) { console.log("addIceCandidate error: "+err) }
