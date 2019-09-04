@@ -173,19 +173,7 @@
                                 if(sdp.type == "answer") {
                                     try {  
                                         addtochat(get_date_str_jscript(get_dtime())+" - rtc answer received from "+json.sender);
-                                        pc[json.sender].setRemoteDescription(sdp).then(()=> {
-                                            $("#video"+json.sender).show();
-                                            var streams = pc[json.sender].getRemoteStreams();
-                                            for (var stream of streams) {
-                                                console.log("Remote streams answer sdp: " + json.sender);
-                                                if($("#video"+json.sender).length==0) {
-                                                  add_videobox(json.sender, "")
-                                                }
-                                                let _friendsVideo = document.getElementById("video"+json.sender);
-                                                _friendsVideo.srcObject = stream;      
-                                                $("#video"+json.sender).show();
-                                            }
-                                        }) 
+                                        pc[json.sender].setRemoteDescription(sdp).then(()=> rtc_get_stream(json.sender)) 
                                     } catch(err) { console.log(err) }
                                 }
                             } 
@@ -325,23 +313,38 @@
                     .then(() => pc[id].createAnswer())
                     .then(answer => pc[id].setLocalDescription(answer))
                     .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
-                    .then(() => {
-                        console.log("answer given to): " + id);
-                        console.log("get remote streams: " + id);
-                          $("#video"+id).show();
-                          var streams = pc[id].getRemoteStreams();
-                          for (var stream of streams) {
-                            if($("#video"+id).length==0) {
-                              add_videobox(id, "")
-                            }    
-                            let _friendsVideo = document.getElementById("video"+id);
-                            //if(stream) {
-                                _friendsVideo.srcObject = stream;                                       
-                            //}
-                          }
-                    })
+                    .then(() => addtochat(get_date_str_jscript(get_dtime())+" - rtc answer given to "+id))
+                    .then(() => rtc_get_stream(id))
                 } catch(err) {console.log(err)}
             }
+        }
+        
+        var rtc_get_stream_timeout = [];
+        function rtc_get_stream(id) {
+            try {
+                clearTimeout(rtc_get_stream_timeout[id]);
+                let streams = pc[id].getRemoteStreams();
+                let found = 0;
+                for (let stream of streams) {
+                  if($("#video"+id).length==0) {
+                    add_videobox(id, "")
+                  }    
+                  let _friendsVideo = document.getElementById("video"+id);
+                  if(stream) {
+                      $("#video"+id).show();
+                      _friendsVideo.srcObject = stream;
+                      found++;
+                      break;
+                  } 
+                }
+                if(found==0){
+                    rtc_get_stream_timeout[id] = setTimeout(function(){
+                        rtc_get_stream(id);
+                    }, 2000)
+                } else {
+                    clearTimeout(rtc_get_stream_timeout[id]);
+                }
+            } catch(err) { console.log(err) }
         }
         
         function rtc_create(id) {
