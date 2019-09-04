@@ -167,7 +167,7 @@
                             //console.log("sdp: "+JSON.stringify(json))
                             let sdp = JSON.parse(json.sdp);
                             console.log("sdp: "+JSON.stringify(sdp))
-                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { 
+                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined" && pc[json.sender].signalingState!="have-local-offer") { 
                                 pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
                                 /*var streams = pc[json.sender].getRemoteStreams();
                                 for (var stream of streams) {
@@ -187,9 +187,7 @@
                                 if(sdp.type=="answer") {
                                     addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
                                 }
-                            } else {
-                                //answerCall(json.sender);
-                            }
+                            } 
                         } catch(err) { console.log(err) }
                     }
                 }
