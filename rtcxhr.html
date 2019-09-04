@@ -209,6 +209,8 @@
                                     } catch(err) { console.log(err) }
                                 }
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
+                            } else {
+                                answerCall(json.sender);
                             }
                         } catch(err) { console.log(err) }
                     }
@@ -344,6 +346,7 @@
             };
             pc[id].onaddstream = function(evt) {
                 $("#connect"+id).attr("disabled", true)
+                $("#connect"+id).hide()
                 $("#end"+id).removeAttr("disabled", true)
                 let _friendsVideo = document.getElementById("video"+id);
                 _friendsVideo.srcObject = evt.stream;                
