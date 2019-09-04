@@ -88,6 +88,7 @@
         var init_signal_int = null;
         var ngrokurl = "";
         var offer = [];
+        var rtcwait = 1;
         //webRTC
         var configuration = {
          iceServers: [  
@@ -129,7 +130,9 @@
                                 });                            
                                 var $textarea = $('#user-list');
                                 $textarea.scrollTop($textarea[0].scrollHeight);
-                                rtc_create(obj);
+                                if(rtcwait==0) {
+                                    rtc_create(obj);
+                                }
                             }
                         }
                         tmpuserlist.push(obj)
@@ -177,7 +180,9 @@
                                         pc[json.sender].setRemoteDescription(sdp.sdp).then(()=> rtc_get_stream(json.sender)) 
                                     } catch(err) { console.log(err) }
                                 }
-                            } 
+                            } else {
+                                rtc_create(json.sender).then(rtc_create_answer(json.sender, sdp.sdp))
+                            }
                         } catch(err) { console.log(err) }
                     }
                 }
@@ -252,7 +257,9 @@
             //broadcast own id
             setInterval(function(){                
                 hello_signal();
+                rtcwait = 0;
             }, 5000);
+            hello_signal();
             
             //rtc start here
             if (!hasGetUserMedia()) {
@@ -300,7 +307,7 @@
             if(typeof pc[id]!="undefined" && pc[id]!=null && (offer[id]==null || offer[id]==undefined) && pc[id].signalingState!="have-local-offer") { //
                 try {
                     pc[id].createOffer()
-                    .then(offer => pc[id].setLocalDescription(offer) )
+                    .then(offer => pc[id].setLocalDescription(new RTCSessionDescription(offer)) )
                     .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
                     .then(() => console.log("offer sent to: "+id))
                 } catch(err) {console.log(err)}
@@ -312,8 +319,8 @@
                 try {
                     pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
                     .then(() => pc[id].createAnswer())
-                    .then(answer => pc[id].setLocalDescription(answer))
-                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
+                    .then(answer => pc[id].setLocalDescription(new RTCSessionDescription(answer), function(){ push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id) }))
+                    //.then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
                     .then(() => addtochat(get_date_str_jscript(get_dtime())+" - rtc answer given to "+id))
                     .then(() => rtc_get_stream(id))
                 } catch(err) {console.log(err)}
