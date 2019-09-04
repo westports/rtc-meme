@@ -160,11 +160,11 @@
 
                           try {    
                               var tempicedata = json.ice;     
-                              if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                  pc[json.rtc_id].addIceCandidate(json.candidate);
-                                  console.log("addIceCandidate " + json.rtc_id + " " + JSON.stringify((json.ice)));
+                              //if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
+                                  pc[json.rtc_id].addIceCandidate(tempicedata);
+                                  console.log("addIceCandidate " + json.rtc_id + " " + JSON.stringify((tempicedata)));
                                   addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.rtc_id);
-                              }
+                              //}
                           } catch(err) { console.log("addIceCandidate error: "+err) }
 
                         }
