@@ -354,7 +354,7 @@
           function createAndSendAnswer(id) {
             pc[id].createAnswer()
             .then(answer => pc[id].setLocalDescription(answer))
-            .then(answer => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(answer) }, id))
+            .then(() => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(pc[id].localDescription)}, id))
             /*pc[id].createAnswer(
               function (answer) {
                 var ans = new RTCSessionDescription(answer);
