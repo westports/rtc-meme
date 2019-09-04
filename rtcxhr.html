@@ -342,7 +342,7 @@
             pc[id] = new RTCPeerConnection(configuration);
             pc[id].onicecandidate = function(evt) {
                 if (!evt || !evt.candidate) return;
-                push_signal({"type":"candidate", "sender":userid, "rtc_id":id, "candidate": evt.candidate }, id);
+                push_signal({"type":"candidate", "sender":userid, "rtc_id":id, "candidate": evt.candidate }, '');
             };
             pc[id].onaddstream = function(evt) {
                 $("#connect"+id).attr("disabled", true)
