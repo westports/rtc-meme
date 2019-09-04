@@ -316,7 +316,8 @@
                 $("#connect"+id).attr("disabled", true)
                 $("#end"+id).removeAttr("disabled", true)
                 let _friendsVideo = document.getElementById("video"+id);
-                _friendsVideo.src = URL.createObjectURL( evt.stream);
+                _friendsVideo.srcObject = evt.stream;
+                
             };
         };
         
