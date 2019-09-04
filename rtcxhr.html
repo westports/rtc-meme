@@ -154,7 +154,7 @@
                     if(json.type=="chat") {
                         addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
                         //console.log(recvdata);
-                    } else if(json.type == "candidate" && json.rtc_id!=userid) { //rtc related starts here
+                    } else if(json.type == "candidate") { //rtc related starts here
                         console.log("candidate "+json.rtc_id);
                         if(typeof pc[json.rtc_id]!="undefined" && pc[json.rtc_id]!=null) {
 
