@@ -174,7 +174,7 @@
                             let sdp = json.sdp;
                             console.log(sdp)
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
-                                pc[json.sender].setRemoteDescription( new RTCSessionDescription(sdp));
+                                pc[json.sender].setRemoteDescription( new RTCSessionDescription(sdp)).then(()=>answerCall(json.sender))
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
                             } else {
                                 answerCall(json.sender) 
