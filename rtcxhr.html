@@ -139,14 +139,7 @@
                     $("#user_placeholder span").each(function(){ //get disconnected users
                         let id = $(this).text();
                         if(tmpuserlist.indexOf(id)<0) {
-                            $("#user_"+id).remove();
-                            remove_user_element(id);
-                            $("#user-list").html("");
-                            $("#user_placeholder span").each(function(){
-                                $("#user-list").append($(this).text()+"\n");
-                            });                            
-                            var $textarea = $('#user-list');
-                            $textarea.scrollTop($textarea[0].scrollHeight);                            
+                            remove_user_element(id);                           
                         }
                     }); 
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
@@ -440,9 +433,17 @@
                 pc[id] = null;    
                 pc.splice(id,1);
                 $("#video"+id).remove();
+                $("#video"+id+"_"+userid).remove();
                 $("#videobox"+id).remove();
+                $("#videobox"+id+"_"+userid).remove();
                 offer[id] = null; 
-                
+                $("#user_"+id).remove();
+                $("#user-list").html("");
+                $("#user_placeholder span").each(function(){
+                    $("#user-list").append($(this).text()+"\n");
+                });                            
+                var $textarea = $('#user-list');
+                $textarea.scrollTop($textarea[0].scrollHeight);
             } catch(err) {}
         }
         
