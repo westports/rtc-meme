@@ -161,7 +161,8 @@
 
                         }
                     } else if(json.type == "sdp") {  //offer received, create answer
-                        try {                            
+                        try {          
+                            console.log("sdp: "+json.sdp)
                             let sdp = JSON.parse(json.sdp);
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
                                 if(sdp.type == "offer") {
@@ -445,11 +446,6 @@
                 offer[id] = null;
                 
             } catch(err) {}
-        }
-        
-        function send_identity() {
-            let msg = {"type":"ident", "sender":userid};
-            push_signal(msg);
         }
         
         function get_dtime() {
