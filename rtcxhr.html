@@ -139,9 +139,14 @@
                     });
                     $("#user_placeholder span").each(function(){ //get disconnected users
                         let id = $(this).text();
-                        if(tmpuserlist.indexOf($(this).text())<0) {
+                        if(tmpuserlist.indexOf(id)<0) {
                             $("#user_"+id).remove();
-                            remove_user_element(id);
+                            $("#user-list").html("");
+                            $("#user_placeholder span").each(function(){
+                                $("#user-list").append($(this).text()+"\n");
+                            });                            
+                            var $textarea = $('#user-list');
+                            $textarea.scrollTop($textarea[0].scrollHeight);
                         }
                     }); 
                     $("#socket_status").html("Connected to "+channel+" ("+room+")");
@@ -356,6 +361,7 @@
         }
         
         function rtc_create(id) {
+            remove_user_element(id);
             if((typeof pc[id]=="undefined" || pc[id]==null)) {                
                 pc[id] = new RTCPeerConnection(configuration);
                 if($("#video"+id+"_"+userid).length==0) {
@@ -454,7 +460,7 @@
                 pc.splice(id,1);
                 $("#video"+id).remove();
                 $("#videobox"+id).remove();
-                offer[id] = null;
+                offer[id] = null; 
                 
             } catch(err) {}
         }
