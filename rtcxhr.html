@@ -268,7 +268,7 @@
                         let to = $(this).text();
                         push_signal(msg, to);
                     });                    
-                    $("#msg").append(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val()+"\n");
+                    addtochat(get_date_str_jscript(get_dtime())+" - You: "+$("#msg_content").val());
                     var $textarea = $('#msg');
                     $textarea.scrollTop($textarea[0].scrollHeight);
                     $("#msg_content").val("");
@@ -343,6 +343,33 @@
                 let _friendsVideo = document.getElementById("video"+id);
                 _friendsVideo.srcObject = evt.stream;                
             };
+            pc[id].onconnectionstatechange = function(event) {
+                try {
+                    switch(pc[id].connectionState) {
+                      case "connected":
+                        // The connection has become fully connected
+                        console.log("RTCPeerConnection connected for "+id)    
+                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection connected for "+id);
+                        break
+                      case "disconnected":
+                        console.log("RTCPeerConnection disconnected for "+id)
+                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection disconnected for "+id);
+                        remove_user_element(id)
+                        break
+                      case "failed":
+                        console.log("RTCPeerConnection failed for "+id)
+                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection failed for "+id);
+                        remove_user_element(id)
+                        break
+                      case "closed":
+                        console.log("RTCPeerConnection closed for "+id)
+                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection closed for "+id);
+                        remove_user_element(id)
+                        // The connection has been closed
+                        break
+                    }
+                } catch(err) {console.log(err)}
+            }
             let _tempVideo = document.getElementById("video"+id+"_"+userid);
             navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                 _tempVideo.srcObject = stream; 
@@ -370,16 +397,9 @@
           };
           
           function answerCall(id) {
-            //prepareCall(id)
             console.log("start answer to "+id)
             createAndSendAnswer(id);
           };
-          
-          /*function createAndSendAnswer(id) {
-            pc[id].createAnswer()
-            .then(answer => pc[id].setLocalDescription(answer))
-            .then(() => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(pc[id].localDescription)}, id))
-          }*/
           
           function createAndSendAnswer(id) {
             pc[id].createAnswer(
@@ -408,16 +428,12 @@
                     <h3>"+id+"</h3>\
                     <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
                     <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"'>End</button>\
-                    <button class=\"btn btn-success\" type=\"button\" id='answer"+id+"'>Answer</button>\
                   </div>\
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
             $("#connect"+id).click(function(){
                 createAndSendOffer(id);
-            })
-            $("#answer"+id).click(function(){
-                createAndSendAnswer(id);
             })
         }
         
