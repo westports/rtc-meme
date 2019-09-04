@@ -90,7 +90,7 @@
         var offer = [];
         var rtcwait = 1;
         //webRTC
-        /*var configuration = {
+        var configuration = {
          iceServers: [  
           {
            urls: 'turn:172.21.95.210:3478?transport=udp',
@@ -104,14 +104,6 @@
          },
          {urls:"stun:stun.l.google.com:19302"},
          {urls:"stun:stun.services.mozilla.com"}]
-        };*/
-         var configuration = {
-         iceServers: [
-         {
-           urls: 'turn:172.21.95.210:3478?transport=tcp',
-           username: 'test',
-           credential: 'test'
-         }]
         };
         
         function get_server_url() {
