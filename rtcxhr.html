@@ -179,7 +179,21 @@
                                     answerCall(json.sender);
                                 } else {
                                     try {  
-                                        pc[json.sender].setRemoteDescription(sdp).then(()=> {
+                                        if(pc[json.sender].signalingState!="kStable") {
+                                            pc[json.sender].setRemoteDescription(sdp).then(()=> {
+                                                $("#video"+json.sender).show();
+                                                var streams = pc[json.sender].getRemoteStreams();
+                                                for (var stream of streams) {
+                                                    console.log("Remote streams (get_sdp): " + json.sender);
+                                                    if($("#video"+json.sender).length==0) {
+                                                      add_videobox(json.sender, "")
+                                                    }
+                                                    let _friendsVideo = document.getElementById("video"+json.sender);
+                                                    _friendsVideo.srcObject = stream;      
+                                                    $("#video"+json.sender).show();
+                                                }
+                                            }) 
+                                        } else {
                                             $("#video"+json.sender).show();
                                             var streams = pc[json.sender].getRemoteStreams();
                                             for (var stream of streams) {
@@ -191,7 +205,7 @@
                                                 _friendsVideo.srcObject = stream;      
                                                 $("#video"+json.sender).show();
                                             }
-                                        }) 
+                                        }
                                     } catch(err) { console.log(err) }
                                 }
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
@@ -369,21 +383,6 @@
             pc[id].createAnswer()
             .then(answer => pc[id].setLocalDescription(answer))
             .then(() => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(pc[id].localDescription)}, id))
-            /*pc[id].createAnswer(
-              function (answer) {
-                var ans = new RTCSessionDescription(answer);
-                pc[id].setLocalDescription(ans, function() {
-                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(ans) }, id);
-                  }, 
-                  function (error) { 
-                    console.log( error);
-                  }
-                );
-              },
-              function (error) { 
-                console.log( error);
-              }
-            );*/
           }       
         
         function add_videobox(id, _class) {
