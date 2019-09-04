@@ -156,14 +156,14 @@
                         //console.log(recvdata);
                     } else if(json.type == "candidate") { //rtc related starts here
                         console.log("candidate "+json.rtc_id);
-                        if(typeof pc[json.rtc_id]!="undefined" && pc[json.rtc_id]!=null) {
+                        if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
 
                           try {    
                               var tempicedata = json.ice;     
                               //if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                  pc[json.rtc_id].addIceCandidate(tempicedata);
-                                  console.log("addIceCandidate " + json.rtc_id + " " + JSON.stringify((tempicedata)));
-                                  addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.rtc_id);
+                                  pc[json.sender].addIceCandidate(tempicedata);
+                                  console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
+                                  addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
                               //}
                           } catch(err) { console.log("addIceCandidate error: "+err) }
 
