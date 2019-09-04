@@ -172,7 +172,7 @@
                         try {          
                             //console.log("sdp: "+JSON.stringify(json))
                             let sdp = JSON.parse(json.sdp);
-                            console.log("sdp: "+JSON.stringify(json.sdp))
+                            console.log("sdp: "+JSON.stringify(JSON.parse(sdp)))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { 
                                 pc[json.sender].setRemoteDescription(sdp);
                                 if(sdp.type=="offer") {
