@@ -368,6 +368,7 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
+                    createAndSendOffer(id);
                 }, function (error) { console.log( error);})
             }
         };
