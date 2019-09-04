@@ -175,7 +175,7 @@
                             console.log("sdp: "+JSON.stringify(sdp))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { 
                                 pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
-                                var streams = pc[json.sender].getRemoteStreams();
+                                /*var streams = pc[json.sender].getRemoteStreams();
                                 for (var stream of streams) {
                                   if($("#video"+json.sender).length==0) {
                                     add_videobox(json.sender, "")
@@ -185,7 +185,7 @@
                                       _friendsVideo.srcObject = stream; 
                                       break;
                                   }
-                                }
+                                }*/
                                 if(sdp.type=="offer") {
                                     answerCall(json.sender);
                                 }
