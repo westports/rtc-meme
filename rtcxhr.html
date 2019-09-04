@@ -324,50 +324,52 @@
             if($("#video"+id).length==0) {
                 add_videobox(id, "")                
             }
-            pc[id] = new RTCPeerConnection(configuration);
-            pc[id].onicecandidate = function(evt) {
-                if (!evt || !evt.candidate) return;
-                push_signal({"type":"candidate", "sender":userid, "rtc_id":id, "candidate": evt.candidate }, '');
-            };
-            pc[id].onaddstream = function(evt) {
-                $("#connect"+id).attr("disabled", true)
-                $("#connect"+id).hide()
-                $("#end"+id).removeAttr("disabled", true)
-                let _friendsVideo = document.getElementById("video"+id);
-                _friendsVideo.srcObject = evt.stream;                
-            };
-            pc[id].onconnectionstatechange = function(event) {
-                try {
-                    switch(pc[id].connectionState) {
-                      case "connected":
-                        // The connection has become fully connected
-                        console.log("RTCPeerConnection connected for "+id)    
-                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection connected for "+id);
-                        break
-                      case "disconnected":
-                        console.log("RTCPeerConnection disconnected for "+id)
-                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection disconnected for "+id);
-                        remove_user_element(id)
-                        break
-                      case "failed":
-                        console.log("RTCPeerConnection failed for "+id)
-                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection failed for "+id);
-                        remove_user_element(id)
-                        break
-                      case "closed":
-                        console.log("RTCPeerConnection closed for "+id)
-                        addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection closed for "+id);
-                        remove_user_element(id)
-                        // The connection has been closed
-                        break
-                    }
-                } catch(err) {console.log(err)}
+            if(pc[id]==null || pc[id]==undefined) {
+                pc[id] = new RTCPeerConnection(configuration);
+                pc[id].onicecandidate = function(evt) {
+                    if (!evt || !evt.candidate) return;
+                    push_signal({"type":"candidate", "sender":userid, "rtc_id":id, "candidate": evt.candidate }, '');
+                };
+                pc[id].onaddstream = function(evt) {
+                    $("#connect"+id).attr("disabled", true)
+                    $("#connect"+id).hide()
+                    $("#end"+id).removeAttr("disabled", true)
+                    let _friendsVideo = document.getElementById("video"+id);
+                    _friendsVideo.srcObject = evt.stream;                
+                };
+                pc[id].onconnectionstatechange = function(event) {
+                    try {
+                        switch(pc[id].connectionState) {
+                          case "connected":
+                            // The connection has become fully connected
+                            console.log("RTCPeerConnection connected for "+id)    
+                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection connected for "+id);
+                            break
+                          case "disconnected":
+                            console.log("RTCPeerConnection disconnected for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection disconnected for "+id);
+                            remove_user_element(id)
+                            break
+                          case "failed":
+                            console.log("RTCPeerConnection failed for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection failed for "+id);
+                            remove_user_element(id)
+                            break
+                          case "closed":
+                            console.log("RTCPeerConnection closed for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection closed for "+id);
+                            remove_user_element(id)
+                            // The connection has been closed
+                            break
+                        }
+                    } catch(err) {console.log(err)}
+                }
+                let _tempVideo = document.getElementById("video"+id+"_"+userid);
+                navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
+                    _tempVideo.srcObject = stream; 
+                    pc[id].addStream(stream);
+                }, function (error) { console.log( error);})
             }
-            let _tempVideo = document.getElementById("video"+id+"_"+userid);
-            navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
-                _tempVideo.srcObject = stream; 
-                pc[id].addStream(stream);
-            }, function (error) { console.log( error);})
         };
         
         function createAndSendOffer(id) {
