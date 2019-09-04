@@ -331,7 +331,7 @@
             pc[id].createOffer(
               function (offer) {
                 var off = new RTCSessionDescription(offer);
-                pc[id].setLocalDescription(off), 
+                pc[id].setLocalDescription(off, 
                   function() {
                     push_signal({"type":"sdp", "sender":userid, "sdp": off }, id);
                   }, 
@@ -355,7 +355,7 @@
             pc[id].createAnswer(
               function (answer) {
                 var ans = new RTCSessionDescription(answer);
-                pc[id].setLocalDescription( ans, function() {
+                pc[id].setLocalDescription(ans, function() {
                     push_signal({"type":"sdp", "sender":userid, "sdp": ans }, id);
                   }, 
                   function (error) { 
