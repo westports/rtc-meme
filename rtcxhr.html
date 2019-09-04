@@ -164,6 +164,7 @@
                         try {          
                             console.log("sdp: "+json.sdp)
                             let sdp = JSON.parse(json.sdp);
+                            console.log(sdp)
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
                                 if(sdp.type == "offer") {
                                     offer[json.sender] = 1;
@@ -296,18 +297,18 @@
         });
         
         function rtc_create_offer(id) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer" && (offer[id]==null || offer[id]==undefined)) {
+            if(typeof pc[id]!="undefined" && pc[id]!=null && (offer[id]==null || offer[id]==undefined)) { //&& pc[id].signalingState!="have-local-offer"
                 try {
                     pc[id].createOffer()
                     .then(offer => pc[id].setLocalDescription(offer) )
-                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))//socket.send(JSON.stringify({"type":"rtc_sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}))) 
+                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
                     .then(() => console.log("offer sent to: "+id))
                 } catch(err) {console.log(err)}
             }
         }
         
         function rtc_create_answer(id, sdp) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer") {
+            if(typeof pc[id]!="undefined" && pc[id]!=null) { // && pc[id].signalingState!="have-local-offer"
                 try {
                     pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
                     .then(() => pc[id].createAnswer())
@@ -316,7 +317,7 @@
                     .then(() => addtochat(get_date_str_jscript(get_dtime())+" - rtc answer given to "+id))
                     .then(() => rtc_get_stream(id))
                 } catch(err) {console.log(err)}
-            }
+            } 
         }
         
         var rtc_get_stream_timeout = [];
