@@ -348,7 +348,7 @@
             pc[id].createAnswer(
               function (answer) {
                 var ans = new RTCSessionDescription( answer);
-                peerConn.setLocalDescription( ans, function() {
+                pc[id].setLocalDescription( ans, function() {
                     push_signal({"type":"sdp", "sender":userid, "sdp": ans }, id);
                   }, 
                   function (error) { 
