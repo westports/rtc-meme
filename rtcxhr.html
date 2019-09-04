@@ -179,7 +179,7 @@
                                     answerCall(json.sender);
                                 } else {
                                     try {  
-                                        if(pc[json.sender].signalingState!="kStable") {
+                                        if(pc[json.sender].signalingState!="kStable" && pc[json.sender].signalingState!="stable") {
                                             pc[json.sender].setRemoteDescription(sdp).then(()=> {
                                                 $("#video"+json.sender).show();
                                                 var streams = pc[json.sender].getRemoteStreams();
