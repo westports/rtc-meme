@@ -377,7 +377,7 @@
             </div>";
             $("#remoteViewContainer").append(html);
             $("#connect"+id).click(function(){
-                let _tempVideo = document.getElementById("video"+id);
+                let _tempVideo = document.getElementById("video"+id+"_"+userid);
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                   _tempVideo.srcObject = stream; 
                   pc[id].addStream(stream);
