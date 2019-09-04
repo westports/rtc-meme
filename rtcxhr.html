@@ -102,8 +102,8 @@
            username: 'test',
            credential: 'test'
          },
-         {urls:"stun:stun.l.google.com:19302"},
-         {urls:"stun:stun.services.mozilla.com"}]
+         {url:"stun:stun.l.google.com:19302"},
+         {url:"stun:stun.services.mozilla.com"}]
         };
         
         function get_server_url() {
@@ -479,7 +479,7 @@
         function gotDevices(deviceInfos) {
           if(deviceInfos.length==0) {
               alert("Your device has no media!"); 
-              socket.close();
+              //socket.close();
           }
           for (let i = 0; i !== deviceInfos.length; ++i) {
             const deviceInfo = deviceInfos[i];
