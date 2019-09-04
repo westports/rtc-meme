@@ -102,7 +102,8 @@
            username: 'test',
            credential: 'test'
          },
-         {urls:"stun:stun.l.google.com:19302"}]
+         {urls:"stun:stun.l.google.com:19302"},
+        {'url':'stun:stun.services.mozilla.com'}]
         };
         
         function get_server_url() {
@@ -130,9 +131,6 @@
                                 });                            
                                 var $textarea = $('#user-list');
                                 $textarea.scrollTop($textarea[0].scrollHeight);
-                                //if(rtcwait==0) {
-                                    rtc_create(obj);
-                                //}
                             }
                         }
                         tmpuserlist.push(obj)
@@ -155,15 +153,16 @@
                     if(json.type=="chat") {
                         addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
                         //console.log(recvdata);
-                    } else if(json.type == "rtc_ice") { //rtc related starts here
-                        console.log("rtc_ice "+json.sender);
-                        if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
+                    } else if(json.type == "candidate") { //rtc related starts here
+                        console.log("candidate "+json.rtc_id);
+                        if(typeof pc[json.rtc_id]!="undefined" && pc[json.rtc_id]!=null) {
 
                           try {
-                              var tempicedata = JSON.parse(json.ice);     
+                              var tempicedata = json.candidate;     
                               if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
                                   pc[json.sender].addIceCandidate(tempicedata);
-                                  console.log("addIceCandidate " + json.sender);
+                                  console.log("addIceCandidate " + json.rtc_id);
+                                  addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
                               }
                           } catch(err) { }
 
@@ -171,22 +170,14 @@
                     } else if(json.type == "sdp") {  //offer received, create answer
                         try {          
                             //console.log("sdp: "+json.sdp)
-                            let sdp = JSON.parse(json.sdp);
-                            //console.log(sdp)
+                            let sdp = json.sdp;
+                            console.log(sdp)
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
-                                if(sdp.type == "offer") {
-                                    offer[json.sender] = 1;
-                                    addtochat(get_date_str_jscript(get_dtime())+" - rtc offer received from "+json.sender);
-                                    rtc_create_answer(json.sender, sdp.sdp); 
-                                }
-                                if(sdp.type == "answer") {
-                                    try {  
-                                        addtochat(get_date_str_jscript(get_dtime())+" - rtc answer received from "+json.sender);
-                                        pc[json.sender].setRemoteDescription(sdp.sdp).then(()=> rtc_get_stream(json.sender)) 
-                                    } catch(err) { console.log(err) }
-                                }
+                                pc[json.sender].setRemoteDescription( new RTCSessionDescription(sdp));
+                                addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
                             } else {
-                                rtc_create(json.sender).then(rtc_create_answer(json.sender, sdp.sdp))
+                                answerCall(json.sender) 
+                                addtochat(get_date_str_jscript(get_dtime())+" - answer call from "+json.sender);
                             }
                         } catch(err) { console.log(err) }
                     }
@@ -308,135 +299,66 @@
             });                
         });
         
-        function rtc_create_offer(id) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && (offer[id]==null || offer[id]==undefined) && pc[id].signalingState!="have-local-offer") { //
-                try {
-                    pc[id].createOffer()
-                    .then(offer => pc[id].setLocalDescription(new RTCSessionDescription(offer)) )
-                    .then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
-                    .then(() => console.log("offer sent to: "+id))
-                } catch(err) {console.log(err)}
+        function prepareCall(id) {
+            if($("#video"+id+"_"+userid).length==0) {
+                add_videobox(id+"_"+userid, "hide")                
             }
-        }
-        
-        function rtc_create_answer(id, sdp) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer") { // && pc[id].signalingState!="have-local-offer"
-                try {
-                    pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
-                    .then(() => pc[id].createAnswer())
-                    .then(answer => pc[id].setLocalDescription(new RTCSessionDescription(answer), function(){ push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id) }))
-                    //.then(() => push_signal({"type":"sdp", "sender":userid, "sdp":JSON.stringify(pc[id].localDescription)}, id))
-                    .then(() => addtochat(get_date_str_jscript(get_dtime())+" - rtc answer given to "+id))
-                    .then(() => rtc_get_stream(id))
-                } catch(err) {console.log(err)}
-            } 
-        }
-        
-        var rtc_get_stream_timeout = [];
-        function rtc_get_stream(id) {
-            try {
-                clearTimeout(rtc_get_stream_timeout[id]);
-                let streams = pc[id].getRemoteStreams();
-                let found = 0;
-                for (let stream of streams) {
-                  if($("#video"+id).length==0) {
-                    add_videobox(id, "")
-                  }    
-                  let _friendsVideo = document.getElementById("video"+id);
-                  if(stream) {
-                      $("#video"+id).show();
-                      _friendsVideo.srcObject = stream;
-                      found++;
-                      break;
-                  } 
-                }
-                if(found==0){
-                    rtc_get_stream_timeout[id] = setTimeout(function(){
-                        rtc_get_stream(id);
-                    }, 2000)
-                } else {
-                    clearTimeout(rtc_get_stream_timeout[id]);
-                }
-            } catch(err) { console.log(err) }
-        }
-        
-        function rtc_create(id) {
-            remove_user_element(id);
-            if((typeof pc[id]=="undefined" || pc[id]==null)) {                
-                pc[id] = new RTCPeerConnection(configuration);
-                if($("#video"+id+"_"+userid).length==0) {
-                    add_videobox(id+"_"+userid, "hide")                
-                }
-                if($("#video"+id).length==0) {
-                    add_videobox(id, "")                
-                }
-                let _tempVideo = document.getElementById("video"+id+"_"+userid);
-                navigator.mediaDevices.getUserMedia({audio:false, video:true})
-                .then(thestream => _tempVideo.srcObject = thestream)
-                .then(thestream => pc[id].addStream(thestream))
-                .then(() => {
-                    pc[id].onicecandidate = function(event) {
-                        //console.log(event.candidate);
-                        if(event.candidate) {
-                            let msg = {"type":"rtc_ice", "sender":userid, "ice":event.candidate};
-                            push_signal(msg, id);
-                        }
-                    }  
-                    pc[id].onsignalingstatechange = (e) => {  // Workaround for Chrome: skip nested negotiations
-                        if(pc[id]!=null && typeof pc[id].signalingState!="undefined" && pc[id].signalingState!=null) {
-                            console.log("signalingState " + id + " " + pc[id].signalingState)
-                        }
-                    }
-
-                    pc[id].onconnectionstatechange = function(event) {
-                        try {
-                            switch(pc[id].connectionState) {
-                              case "connected":
-                                // The connection has become fully connected
-                                console.log("RTCPeerConnection connected for "+id)
-                                break
-                              case "disconnected":
-                                console.log("RTCPeerConnection disconnected for "+id)
-                                remove_user_element(id)
-                                break
-                              case "failed":
-                                console.log("RTCPeerConnection failed for "+id)
-                                remove_user_element(id)
-                                break
-                              case "closed":
-                                console.log("RTCPeerConnection closed for "+id)
-                                remove_user_element(id)
-
-                                // The connection has been closed
-                                break
-                            }
-                        } catch(err) {console.log(err)}
-                    }
-
-                    pc[id].onaddstream = (event) => {
-                        try {
-                            //if(event.stream) {                                    
-                               $("#video"+id).show();
-                               var streams = pc[id].getRemoteStreams();
-                               for (var stream of streams) {
-                                  console.log("Remote streams: " + id); //stream.id
-                                  if($("#video"+id).length==0) {
-                                      add_videobox(id, "")                
-                                  }
-                                  let _friendsVideo = document.getElementById("video"+id);
-                                  _friendsVideo.srcObject = stream;
-                               }
-                            //}
-                        } catch(err) { console.log(err) }   
-                    }         
-                })
-                .then(() => { //create offer
-                    if(typeof offer[id]=="undefined" || offer[id]==null) {
-                        rtc_create_offer(id);
-                    }
-                })
+            if($("#video"+id).length==0) {
+                add_videobox(id, "")                
             }
-        }
+            pc[id] = new RTCPeerConnection(configuration);
+            pc[id].onicecandidate = function(evt) {
+                if (!evt || !evt.candidate) return;
+                push_signal({"type":"candidate", "sender":userid, "rtc_id":id, "candidate": evt.candidate }, '');
+            };
+            pc[id].onaddstream = function(evt) {
+                $("#connect"+id).attr("disabled", true)
+                $("#end"+id).removeAttr("disabled", true)
+                let _friendsVideo = document.getElementById("video"+id);
+                _friendsVideo.src = URL.createObjectURL( evt.stream);
+            };
+        };
+        
+        function createAndSendOffer(id) {
+            pc[id].createOffer(
+              function (offer) {
+                var off = new RTCSessionDescription( offer);
+                pc[id].setLocalDescription( new RTCSessionDescription( off), 
+                  function() {
+                    push_signal({"type":"sdp", "sender":userid, "sdp": off }, id);
+                  }, 
+                  function(error) { 
+                    console.log( error);
+                  }
+                );
+              }, 
+              function (error) { 
+                console.log( error);
+              }
+            );
+          };
+          
+          function answerCall(id) {
+            prepareCall(id).then(createAndSendAnswer(id));
+          };
+          
+          function createAndSendAnswer(id) {
+            pc[id].createAnswer(
+              function (answer) {
+                var ans = new RTCSessionDescription( answer);
+                peerConn.setLocalDescription( ans, function() {
+                    push_signal({"type":"sdp", "sender":userid, "sdp": ans }, id);
+                  }, 
+                  function (error) { 
+                    console.log( error);
+                  }
+                );
+              },
+              function (error) { 
+                console.log( error);
+              }
+            );
+          }       
         
         function add_videobox(id, _class) {
             let muted = (_class=="hide")? "muted" : "";
@@ -445,12 +367,29 @@
                   <video id='video"+id+"' autoplay controls "+muted+"></video>\
                   <div class=\"caption\">\
                     <h3>"+id+"</h3>\
-                    <!--<button class=\"btn btn-default\" type=\"button\" id='connect"+id+"'>Connect</button>\
-                    <button class=\"btn btn-default\" type=\"button\" id='answer"+id+"' style='display:none'>Refresh</button>-->\
+                    <button class=\"btn btn-default\" type=\"button\" id='connect"+id+"'>Call</button>\
+                    <button class=\"btn btn-default\" type=\"button\" id='end"+id+"' disabled='true'>End</button>\
+                    <button class=\"btn btn-default\" type=\"button\" id='answer"+id+"' disabled='true'>Answer</button>\
                   </div>\
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
+            $("#connect"+id).click(function(){
+                let _tempVideo = document.getElementById("video"+id);
+                navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
+                  _tempVideo.src = URL.createObjectURL(stream);
+                  pc[id].addStream(stream);
+                  createAndSendOffer(id);
+                }, function (error) { console.log( error);});
+            })
+            $("#answer"+id).click(function(){
+                let _tempVideo = document.getElementById("video"+id+"_"+userid);
+                navigator.getUserMedia({ "audio": false, "video": true }, function (stream) {
+                    _tempVideo.src = URL.createObjectURL( stream);
+                    pc[id].addStream(stream);
+                    createAndSendAnswer(id);
+                  }, function(error) { console.log(error);});
+            })
         }
         
         function remove_user_element(id) {
