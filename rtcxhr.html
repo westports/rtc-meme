@@ -158,11 +158,10 @@
                         console.log("candidate "+json.rtc_id);
                         if(typeof pc[json.rtc_id]!="undefined" && pc[json.rtc_id]!=null) {
 
-                          try {
-                              var tempicedata = json.candidate;     
+                          try {    
                               //if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
-                                  pc[json.rtc_id].addIceCandidate(tempicedata);
-                                  console.log("addIceCandidate " + json.rtc_id + " " + tempicedata);
+                                  pc[json.rtc_id].addIceCandidate(new RTCIceCandidate(json.candidate));
+                                  console.log("addIceCandidate " + json.rtc_id + " " + JSON.stringify(json.candidate));
                                   addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.rtc_id);
                               //}
                           } catch(err) { }
@@ -191,7 +190,7 @@
                                 }
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
                                 if(sdp.type=="answer") {
-                                    addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender+" "+JSON.stringify(sdp));
+                                    addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
                                 }
                             } else {
                                 //answerCall(json.sender);
