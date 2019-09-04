@@ -269,7 +269,7 @@
             //rtc start here
             if (!hasGetUserMedia()) {
                 alert('getUserMedia() is not supported by your browser');
-                socket.close();
+                //socket.close();
             }
 
             navigator.mediaDevices.enumerateDevices()
@@ -360,7 +360,7 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
-                    createAndSendOffer(id);
+                    //createAndSendOffer(id);
                 }, function (error) { console.log( error);})
             }
         };
