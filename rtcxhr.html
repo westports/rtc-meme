@@ -130,9 +130,9 @@
                                 });                            
                                 var $textarea = $('#user-list');
                                 $textarea.scrollTop($textarea[0].scrollHeight);
-                                if(rtcwait==0) {
+                                //if(rtcwait==0) {
                                     rtc_create(obj);
-                                }
+                                //}
                             }
                         }
                         tmpuserlist.push(obj)
@@ -215,7 +215,7 @@
                 data = window.btoa(JSON.stringify(data));
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&to="+to+"&data="+data+"'>");
+                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&id="+userid+"&channel="+channel+"&to="+to+"&data="+data+"'>");
                 setTimeout(function(){ $("#scriptpush_signal"+n).remove() }, 3000)          
             }
         }
