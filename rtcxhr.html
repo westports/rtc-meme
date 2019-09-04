@@ -198,6 +198,9 @@
                                     answerCall(json.sender);
                                 }
                                 addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
+                                if(sdp.type=="answer") {
+                                    addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender+" "+JSON.stringify(sdp));
+                                }
                             } else {
                                 //answerCall(json.sender);
                             }
