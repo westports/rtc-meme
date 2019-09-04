@@ -352,7 +352,10 @@
           };
           
           function createAndSendAnswer(id) {
-            pc[id].createAnswer(
+            pc[id].createAnswer()
+            .then(answer => pc[id].setLocalDescription(answer))
+            .then(() => push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(answer) }, id))
+            /*pc[id].createAnswer(
               function (answer) {
                 var ans = new RTCSessionDescription(answer);
                 pc[id].setLocalDescription(ans, function() {
@@ -366,7 +369,7 @@
               function (error) { 
                 console.log( error);
               }
-            );
+            );*/
           }       
         
         function add_videobox(id, _class) {
