@@ -339,7 +339,7 @@
           };
           
           function answerCall(id) {
-            prepareCall(id).then(createAndSendAnswer(id));
+            prepareCall(id).then(()=>createAndSendAnswer(id));
           };
           
           function createAndSendAnswer(id) {
