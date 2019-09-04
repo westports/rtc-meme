@@ -164,17 +164,17 @@
                         try {          
                             console.log("sdp: "+json.sdp)
                             let sdp = JSON.parse(json.sdp);
-                            console.log(sdp)
+                            //console.log(sdp)
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) { 
                                 if(sdp.type == "offer") {
                                     offer[json.sender] = 1;
                                     addtochat(get_date_str_jscript(get_dtime())+" - rtc offer received from "+json.sender);
-                                    rtc_create_answer(json.sender, sdp); 
+                                    rtc_create_answer(json.sender, sdp.sdp); 
                                 }
                                 if(sdp.type == "answer") {
                                     try {  
                                         addtochat(get_date_str_jscript(get_dtime())+" - rtc answer received from "+json.sender);
-                                        pc[json.sender].setRemoteDescription(sdp).then(()=> rtc_get_stream(json.sender)) 
+                                        pc[json.sender].setRemoteDescription(sdp.sdp).then(()=> rtc_get_stream(json.sender)) 
                                     } catch(err) { console.log(err) }
                                 }
                             } 
@@ -297,7 +297,7 @@
         });
         
         function rtc_create_offer(id) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null && (offer[id]==null || offer[id]==undefined)) { //&& pc[id].signalingState!="have-local-offer"
+            if(typeof pc[id]!="undefined" && pc[id]!=null && (offer[id]==null || offer[id]==undefined) && pc[id].signalingState!="have-local-offer") { //
                 try {
                     pc[id].createOffer()
                     .then(offer => pc[id].setLocalDescription(offer) )
@@ -308,7 +308,7 @@
         }
         
         function rtc_create_answer(id, sdp) {
-            if(typeof pc[id]!="undefined" && pc[id]!=null) { // && pc[id].signalingState!="have-local-offer"
+            if(typeof pc[id]!="undefined" && pc[id]!=null && pc[id].signalingState!="have-local-offer") { // && pc[id].signalingState!="have-local-offer"
                 try {
                     pc[id].setRemoteDescription(sdp) //new RTCSessionDescription(data)
                     .then(() => pc[id].createAnswer())
