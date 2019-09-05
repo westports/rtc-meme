@@ -190,10 +190,11 @@
                                     }
                                 /*} else {
                                     remove_user_element(json.sender);
-                                    prepareCall(json.sender);
                                 }*/
                             } 
                         } catch(err) { console.log(err) }
+                    } else if(json.type == "endcall") {
+                        remove_user_element(json.sender);
                     }
                 }
             
@@ -474,6 +475,7 @@
                 $("#connect"+id).show();
                 $("#end"+id).hide();
                 remove_user_element(id);
+                push_signal({"type":"endcall", "sender":userid}, id)
             })
         }
         
