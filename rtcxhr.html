@@ -272,9 +272,6 @@
             setInterval(function(){                
                 hello_signal();
                 rtcwait = 0;
-                $.each(pc, function(i, o){
-                    addtochat(get_date_str_jscript(get_dtime())+" - "+i+" "+o.signalingState);
-                })
             }, 5000);
             hello_signal();
             
@@ -372,7 +369,9 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
-                    //createAndSendOffer(id);
+                    if(rtcwait==0) {
+                        createAndSendOffer(id);
+                    }
                 }, function (error) { console.log( error);})
             }
         };
@@ -428,12 +427,16 @@
                     <h3>"+id+"</h3>\
                     <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
                     <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"'>End</button>\
+                    <button class=\"btn btn-primary\" type=\"button\" id='check"+id+"'>State</button>\
                   </div>\
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
             $("#connect"+id).click(function(){
                 createAndSendOffer(id);
+            })
+            $("#check"+id).click(function(){
+                addtochat(get_date_str_jscript(get_dtime())+" - "+id+" "+pc[id].signalingState);
             })
         }
         
