@@ -463,12 +463,14 @@
             let muted = (_class=="hide")? "muted" : "";
             let html = "<div class=\"col-md-5 videobox "+_class+"\" id='videobox"+id+"'>\
                 <div class=\"card\">\
-                    <video id='video"+id+"' autoplay controls "+muted+"></video>\
-                    <p>"+id+" | \
-                    <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
-                    <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"' style='display:none'>End</button>\
-                    <button class=\"btn btn-primary hide\" type=\"button\" id='check"+id+"'>State</button>\
-                    </p>\
+                    <div class=\"card-body\">\
+                        <video id='video"+id+"' autoplay controls "+muted+"></video>\
+                        <p>"+id+" | \
+                        <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
+                        <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"' style='display:none'>End</button>\
+                        <button class=\"btn btn-primary hide\" type=\"button\" id='check"+id+"'>State</button>\
+                        </p>\
+                    </div>\
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
