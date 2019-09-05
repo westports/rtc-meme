@@ -242,6 +242,12 @@
             var c = url.searchParams.get("u");
             var d = url.searchParams.get("ch");
             var e = url.searchParams.get("r");
+            if(c==null || c=="") {
+                var person = prompt("Please enter your name", "");
+                if (person != null) {
+                    c = person;
+                } 
+            }
             if(c!="" && d!="" && e!="") {
                 userid = c; $("#username").val(userid); channel = d; room = e;
             }
