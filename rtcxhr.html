@@ -351,9 +351,8 @@
                     push_signal({"type":"candidate", "sender":userid, "ice": evt.candidate }, '');
                 };
                 pc[id].onaddstream = function(evt) {
-                    $("#connect"+id).attr("disabled", true)
                     $("#connect"+id).hide()
-                    $("#end"+id).removeAttr("disabled", true)
+                    $("#end"+id).show();
                     let _friendsVideo = document.getElementById("video"+id);
                     _friendsVideo.srcObject = evt.stream;    
                     vstream[id] = evt.stream;
