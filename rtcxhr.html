@@ -161,11 +161,11 @@
 
                           try {    
                               var tempicedata = json.ice;     
-                              //if(typeof tempicedata.result!="undefined" && tempicedata!=undefined && tempicedata.result==true) {
+                              if(typeof tempicedata.candidate!="undefined" && tempicedata!=undefined) {
                                   pc[json.sender].addIceCandidate(tempicedata);
                                   console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
                                   addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
-                              //}
+                              }
                           } catch(err) { console.log("addIceCandidate error: "+err) }
 
                         }
