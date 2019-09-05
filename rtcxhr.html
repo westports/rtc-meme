@@ -166,7 +166,7 @@
                               if(typeof tempicedata.candidate!="undefined" && tempicedata!=undefined) {
                                   pc[json.sender].addIceCandidate(tempicedata);
                                   //console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
-                                  addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
+                                  //addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
                               }
                           } catch(err) { console.log("addIceCandidate error: "+err) }
 
@@ -183,9 +183,9 @@
                                 if(sdp.type=="offer") {
                                     answerCall(json.sender);
                                 }
-                                addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
+                                //addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
                                 if(sdp.type=="answer") {
-                                    addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
+                                    //addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
                                 }
                             } 
                         } catch(err) { console.log(err) }
@@ -364,26 +364,26 @@
                           case "connected":
                             // The connection has become fully connected
                             console.log("RTCPeerConnection connected for "+id)    
-                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection connected for "+id);
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connected: "+id);
                             break
                           case "disconnected":
                             console.log("RTCPeerConnection disconnected for "+id)
-                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection disconnected for "+id);
+                            addtochat(get_date_str_jscript(get_dtime())+" - Disconnected: "+id);
                             remove_user_element(id)
                             break
                           case "failed":
                             console.log("RTCPeerConnection failed for "+id)
-                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection failed for "+id);
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connection failed: "+id);
                             remove_user_element(id)
                             break
                           case "closed":
                             console.log("RTCPeerConnection closed for "+id)
-                            addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection closed for "+id);
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connected closed: "+id);
                             remove_user_element(id)
                             // The connection has been closed
                             break
                           default:
-                              addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection state: "+pc[id].connectionState);
+                              addtochat(get_date_str_jscript(get_dtime())+" - Connection state: "+id+" "+pc[id].connectionState);
                         }
                     } catch(err) {console.log(err)}
                 }
@@ -398,6 +398,7 @@
         function createAndSendOffer(id) {
             if(offer[id]==null || offer[id]==undefined) {
                 $("#connect"+id).hide();
+                $("#end"+id).show();
                 pc[id].createOffer(
                   function (_offer) {
                     offer[id] = 1;
@@ -449,7 +450,7 @@
                   <div class=\"caption\">\
                     <h3>"+id+"</h3>\
                     <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
-                    <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"'>End</button>\
+                    <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"' style='display:none'>End</button>\
                     <button class=\"btn btn-primary\" type=\"button\" id='check"+id+"'>State</button>\
                   </div>\
                 </div>\
@@ -460,6 +461,12 @@
             })
             $("#check"+id).click(function(){
                 addtochat(get_date_str_jscript(get_dtime())+" - "+id+" "+pc[id].signalingState);
+            })
+            $("#end"+id).click(function(){
+                pc[id].close();
+                $("#connect"+id).show();
+                $("#end"+id).hide();
+                remove_user_element(id);
             })
         }
         
