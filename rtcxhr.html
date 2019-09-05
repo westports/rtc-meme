@@ -155,7 +155,6 @@
                     let json = recvdata;
                     if(json.type=="chat") {
                         addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
-                        //console.log(recvdata);
                     } else if(json.type == "candidate") { //rtc related starts here
                         console.log("candidate "+json.sender);
                         if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
@@ -172,13 +171,10 @@
                         }
                     } else if(json.type == "sdp") {  //offer received, create answer
                         try {          
-                            //console.log("sdp: "+JSON.stringify(json))
                             let sdp = JSON.parse(json.sdp);
                             console.log("sdp: "+JSON.stringify(sdp))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { // && pc[json.sender].signalingState!="have-local-offer"
-                                //if(pc[json.sender].signalingState!="stable" && pc[json.sender].signalingState!="connecting") {
                                     pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
-                                //}
                                 
                                 get_stream(json.sender);
                                 
@@ -263,7 +259,6 @@
             
             //broadcast own id
             setInterval(function(){   
-                console.log("5 sec interval run")
                 hello_signal();
                 rtcwait = 0;
                 check_rtc();
@@ -273,7 +268,7 @@
             //rtc start here
             if (!hasGetUserMedia()) {
                 alert('getUserMedia() is not supported by your browser');
-                //socket.close();
+                addtochat(get_date_str_jscript(get_dtime())+" - Your browser does not support this app!");
             }
 
             navigator.mediaDevices.enumerateDevices()
@@ -330,10 +325,9 @@
         function check_rtc() {
             $("#user_placeholder span").each(function(){ //get disconnected users
                 let id = $(this).text();
-                addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
                 if(pc[id]!=null && pc[id]!=undefined) {
                     if(vstream[id]==null || vstream[id]==undefined) {
-                        addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" send offer");
+                        //addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" send offer");
                         createAndSendOffer(id);                    
                     }
                 }
