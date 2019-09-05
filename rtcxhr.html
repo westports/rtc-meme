@@ -264,9 +264,6 @@
             setInterval(function(){                
                 hello_signal();
                 rtcwait = 0;
-                $.each(pc, function(i,o){
-                    addtochat(get_date_str_jscript(get_dtime())+" - pc "+i);
-                })
             }, 5000);
             hello_signal();
             
