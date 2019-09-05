@@ -329,8 +329,11 @@
             $("#user_placeholder span").each(function(){ //get disconnected users
                 let id = $(this).text();
                 addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
-                if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
-                    createAndSendOffer(id);
+                if(pc[id]!=null && pc[id]!=undefined) {
+                    addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" "+pc[id].signalingState);
+                    if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
+                        createAndSendOffer(id);
+                    }
                 }
             }); 
         }
