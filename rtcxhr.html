@@ -175,9 +175,9 @@
                             let sdp = JSON.parse(json.sdp);
                             console.log("sdp: "+JSON.stringify(sdp))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { // && pc[json.sender].signalingState!="have-local-offer"
-                                if(pc[json.sender].signalingState!="stable" && pc[json.sender].signalingState!="connecting") {
+                                //if(pc[json.sender].signalingState!="stable" && pc[json.sender].signalingState!="connecting") {
                                     pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
-                                }
+                                //}
                                 
                                 get_stream(json.sender);
                                 
@@ -395,6 +395,7 @@
         };
         
         function createAndSendOffer(id) {
+            $("#connect"+id).hide();
             pc[id].createOffer(
               function (offer) {
                 var off = new RTCSessionDescription(offer);
