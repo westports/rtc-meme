@@ -261,10 +261,11 @@
             });
             
             //broadcast own id
-            setInterval(function(){                
+            setInterval(function(){   
+                console.log("5 sec interval run")
                 hello_signal();
                 rtcwait = 0;
-                //check_rtc();
+                check_rtc();
             }, 5000);
             hello_signal();
             
@@ -326,6 +327,7 @@
         
         function check_rtc() {
             $("#user_placeholder span").each(function(){ //get disconnected users
+                addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
                 let id = $(this).text();
                 if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
                     createAndSendOffer(id);
@@ -387,7 +389,7 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
-                    if(rtcwait==0) {
+                    if(rtcwait===0) {
                         createAndSendOffer(id);
                     }
                 }, function (error) { console.log( error);})
