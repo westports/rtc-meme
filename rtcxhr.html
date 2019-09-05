@@ -107,6 +107,8 @@
          {url:"stun:stun.services.mozilla.com"}]
         };
         
+        var mediacfg = {"audio": false, "video": true };
+        
         function get_server_url() {
             let url = "https://westports.github.io/rtc-meme/url.js";
             let d = new Date();
@@ -156,14 +158,14 @@
                     if(json.type=="chat") {
                         addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
                     } else if(json.type == "candidate") { //rtc related starts here
-                        console.log("candidate "+json.sender);
+                        //console.log("candidate "+json.sender);
                         if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
 
                           try {    
                               var tempicedata = json.ice;     
                               if(typeof tempicedata.candidate!="undefined" && tempicedata!=undefined) {
                                   pc[json.sender].addIceCandidate(tempicedata);
-                                  console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
+                                  //console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
                                   addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
                               }
                           } catch(err) { console.log("addIceCandidate error: "+err) }
@@ -172,7 +174,7 @@
                     } else if(json.type == "sdp") {  //offer received, create answer
                         try {          
                             let sdp = JSON.parse(json.sdp);
-                            console.log("sdp: "+JSON.stringify(sdp))
+                            //console.log("sdp: "+JSON.stringify(sdp))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { // && pc[json.sender].signalingState!="have-local-offer"
                                     pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
                                 
@@ -274,7 +276,7 @@
             navigator.mediaDevices.enumerateDevices()
             .then(gotDevices).catch(onError);
 
-            navigator.mediaDevices.getUserMedia({audio:true, video:true})
+            navigator.mediaDevices.getUserMedia(mediacfg)
             .then(ownstream => yourVideo.srcObject = ownstream)
             .catch(function(err) {
                 //log to console first 
@@ -386,7 +388,7 @@
                     } catch(err) {console.log(err)}
                 }
                 let _tempVideo = document.getElementById("video"+id+"_"+userid);
-                navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
+                navigator.getUserMedia(mediacfg, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
                 }, function (error) { console.log( error);})
