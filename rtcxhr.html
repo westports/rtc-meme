@@ -462,14 +462,13 @@
         function add_videobox(id, _class) {
             let muted = (_class=="hide")? "muted" : "";
             let html = "<div class=\"col-md-5 videobox "+_class+"\" id='videobox"+id+"'>\
-                <div class=\"thumbnail\">\
-                  <video id='video"+id+"' autoplay controls "+muted+"></video>\
-                  <div class=\"caption\">\
-                    <h3>"+id+"</h3>\
+                <div class=\"card\">\
+                    <video id='video"+id+"' autoplay controls "+muted+"></video>\
+                    <p>"+id+" | \
                     <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
                     <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"' style='display:none'>End</button>\
                     <button class=\"btn btn-primary hide\" type=\"button\" id='check"+id+"'>State</button>\
-                  </div>\
+                    </p>\
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
@@ -486,6 +485,7 @@
                 $("#connect"+id).show();
                 $("#end"+id).hide();
                 remove_user_element(id);
+                addtochat(get_date_str_jscript(get_dtime())+" - Call end: "+id);
                 push_signal({"type":"endcall", "sender":userid}, id)
             })
         }
