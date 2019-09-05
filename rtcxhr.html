@@ -108,7 +108,7 @@
          {url:"stun:stun.services.mozilla.com"}]
         };
         
-        var mediacfg = {"audio": true, "video": false };
+        var mediacfg = {"audio": false, "video": true };
         
         function get_server_url() {
             let url = "https://westports.github.io/rtc-meme/url.js";
@@ -475,7 +475,7 @@
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
-            $("#video"+id).hide();
+            //$("#video"+id).hide();
             $("#connect"+id).click(function(){
                 addtochat(get_date_str_jscript(get_dtime())+" - Call start: "+id);
                 createAndSendOffer(id);
