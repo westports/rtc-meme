@@ -189,7 +189,7 @@
                                         //addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
                                     }
                                 } else {
-                                    remove_user_element(id);
+                                    remove_user_element(json.sender);
                                     prepareCall(json.sender);
                                 }
                             } 
