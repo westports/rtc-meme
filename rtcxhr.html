@@ -442,6 +442,9 @@
                 $("#videobox"+id).remove();
                 $("#videobox"+id+"_"+userid).remove();
                 offer[id] = null; 
+                if($("span#user_"+obj).length>0) {
+                    prepareCall(id)
+                }
                 
             } catch(err) {}
         }
