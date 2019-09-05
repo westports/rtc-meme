@@ -89,6 +89,7 @@
         var ngrokurl = "";
         var offer = [];
         var rtcwait = 1;
+        var vstream = [];
         //webRTC
         var configuration = {
          iceServers: [  
@@ -320,6 +321,7 @@
               let _friendsVideo = document.getElementById("video"+id);
               if(stream) {
                   _friendsVideo.srcObject = stream; 
+                  vstream[id] = stream;
                   break;
               }
             }
@@ -330,9 +332,9 @@
                 let id = $(this).text();
                 addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
                 if(pc[id]!=null && pc[id]!=undefined) {
-                    addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" "+pc[id].signalingState);
-                    if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
-                        createAndSendOffer(id);
+                    if(vstream[id]==null || vstream[id]==undefined) {
+                        addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" send offer");
+                        createAndSendOffer(id);                    
                     }
                 }
             }); 
@@ -357,7 +359,8 @@
                     $("#connect"+id).hide()
                     $("#end"+id).removeAttr("disabled", true)
                     let _friendsVideo = document.getElementById("video"+id);
-                    _friendsVideo.srcObject = evt.stream;                
+                    _friendsVideo.srcObject = evt.stream;    
+                    vstream[id] = evt.stream;
                 };
                 pc[id].onconnectionstatechange = function(event) {
                     try {
@@ -392,31 +395,31 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
-                    /*if(rtcwait===0) {
-                        createAndSendOffer(id);
-                    }*/
                 }, function (error) { console.log( error);})
             }
         };
         
         function createAndSendOffer(id) {
-            $("#connect"+id).hide();
-            pc[id].createOffer(
-              function (offer) {
-                var off = new RTCSessionDescription(offer);
-                pc[id].setLocalDescription(off, 
-                  function() {
-                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(off) }, id);
+            if(offer[id]==null || offer[id]==undefined) {
+                $("#connect"+id).hide();
+                pc[id].createOffer(
+                  function (_offer) {
+                    offer[id] = 1;
+                    var off = new RTCSessionDescription(_offer);
+                    pc[id].setLocalDescription(off, 
+                      function() {
+                        push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(off) }, id);
+                      }, 
+                      function(error) { 
+                        console.log( error);
+                      }
+                    );
                   }, 
-                  function(error) { 
+                  function (error) { 
                     console.log( error);
                   }
                 );
-              }, 
-              function (error) { 
-                console.log( error);
-              }
-            );
+            }
           };
           
           function answerCall(id) {
@@ -474,6 +477,9 @@
                 $("#videobox"+id).remove();
                 $("#videobox"+id+"_"+userid).remove();
                 offer[id] = null; 
+                offer.splice(id,1);
+                vstream[id] = null;
+                vstream.splice(id,1);
                 if($("span#user_"+id).length>0) {
                     prepareCall(id)
                 }
