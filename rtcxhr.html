@@ -424,6 +424,7 @@
                     pc[id].setLocalDescription(off, 
                       function() {
                         push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(off) }, id);
+                        $("#video"+id).show();
                       }, 
                       function(error) { 
                         console.log( error);
@@ -475,7 +476,7 @@
                 </div>\
             </div>";
             $("#remoteViewContainer").append(html);
-            //$("#video"+id).hide();
+            $("#video"+id).hide();
             $("#connect"+id).click(function(){
                 addtochat(get_date_str_jscript(get_dtime())+" - Call start: "+id);
                 createAndSendOffer(id);
