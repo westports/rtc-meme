@@ -327,8 +327,8 @@
         
         function check_rtc() {
             $("#user_placeholder span").each(function(){ //get disconnected users
-                addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
                 let id = $(this).text();
+                addtochat(get_date_str_jscript(get_dtime())+" - check_rtc for "+id);
                 if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
                     createAndSendOffer(id);
                 }
