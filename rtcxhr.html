@@ -335,6 +335,7 @@
               if(stream) {
                   _friendsVideo.srcObject = stream; 
                   vstream[id] = stream;
+                  $("#video"+id).show();
                   break;
               }
             }
@@ -372,6 +373,7 @@
                     let _friendsVideo = document.getElementById("video"+id);
                     _friendsVideo.srcObject = evt.stream;    
                     vstream[id] = evt.stream;
+                    $("#video"+id).show();
                 };
                 pc[id].onconnectionstatechange = function(event) {
                     try {
