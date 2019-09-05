@@ -212,7 +212,7 @@
             if(ngrokurl!="") {
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"&id="+userid+"'>");
+                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"&id="+userid+"&n="+n+"'>");
                 setTimeout(function(){ $("#scripthello_signal"+n).remove() }, 3000)    
             }
         }
@@ -222,7 +222,7 @@
                 data = window.btoa(JSON.stringify(data));
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&id="+userid+"&channel="+channel+"&to="+to+"&data="+data+"'>");
+                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&n="+n+"&id="+userid+"&channel="+channel+"&to="+to+"&data="+data+"'>");
                 setTimeout(function(){ $("#scriptpush_signal"+n).remove() }, 3000)          
             }
         }
@@ -231,7 +231,7 @@
             if(ngrokurl!="") {
                 let d = new Date();
                 let n = d.getTime();
-                $("#script_placeholder").html("<script id='scriptget_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&get=1&id="+userid+"'>");
+                $("#script_placeholder").html("<script id='scriptget_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&get=1&id="+userid+"&n="+n+"'>");
                 setTimeout(function(){ $("#scriptget_signal"+n).remove() }, 3000)
             }
         }        
