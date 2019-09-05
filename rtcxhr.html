@@ -195,6 +195,7 @@
                         } catch(err) { console.log(err) }
                     } else if(json.type == "endcall") {
                         remove_user_element(json.sender);
+                        addtochat(get_date_str_jscript(get_dtime())+" - Call end: "+json.sender);
                     }
                 }
             
@@ -465,6 +466,7 @@
             </div>";
             $("#remoteViewContainer").append(html);
             $("#connect"+id).click(function(){
+                addtochat(get_date_str_jscript(get_dtime())+" - Call start: "+id);
                 createAndSendOffer(id);
             })
             $("#check"+id).click(function(){
