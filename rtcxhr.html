@@ -389,9 +389,9 @@
                 navigator.getUserMedia({"audio": false, "video": true }, function (stream) {
                     _tempVideo.srcObject = stream; 
                     pc[id].addStream(stream);
-                    if(rtcwait===0) {
+                    /*if(rtcwait===0) {
                         createAndSendOffer(id);
-                    }
+                    }*/
                 }, function (error) { console.log( error);})
             }
         };
