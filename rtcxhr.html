@@ -175,7 +175,7 @@
                             let sdp = JSON.parse(json.sdp);
                             console.log("sdp: "+JSON.stringify(sdp))
                             if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { // && pc[json.sender].signalingState!="have-local-offer"
-                                if(pc[json.sender].signalingState!="stable" || pc[json.sender].signalingState!="have-local-offer") {
+                                if(pc[json.sender].signalingState!="stable" && pc[json.sender].signalingState!="have-local-offer" && pc[json.sender].signalingState!="connecting") {
                                     pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
                                 }
                                 
@@ -264,6 +264,7 @@
             setInterval(function(){                
                 hello_signal();
                 rtcwait = 0;
+                check_rtc();
             }, 5000);
             hello_signal();
             
@@ -321,6 +322,15 @@
                   break;
               }
             }
+        }
+        
+        function check_rtc() {
+            $("#user_placeholder span").each(function(){ //get disconnected users
+                let id = $(this).text();
+                if(pc[id].signalingState!="stable" && pc[id].signalingState!="have-local-offer" && pc[id].signalingState!="connecting") {
+                    createAndSendOffer(id);
+                }
+            }); 
         }
         
         function prepareCall(id) {            
