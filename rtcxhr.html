@@ -178,17 +178,9 @@
                                 if(pc[json.sender].signalingState!="stable" || pc[json.sender].signalingState!="have-local-offer") {
                                     pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
                                 }
-                                var streams = pc[json.sender].getRemoteStreams();
-                                if($("#video"+json.sender).length==0) {
-                                    add_videobox(json.sender, "")
-                                }
-                                for (var stream of streams) {                                      
-                                  let _friendsVideo = document.getElementById("video"+json.sender);
-                                  if(stream) {
-                                      _friendsVideo.srcObject = stream; 
-                                      break;
-                                  }
-                                }
+                                
+                                get_stream(json.sender);
+                                
                                 if(sdp.type=="offer") {
                                     answerCall(json.sender);
                                 }
@@ -320,6 +312,20 @@
             });                
         });
         
+        function get_stream(id) {
+            var streams = pc[id].getRemoteStreams();
+            if($("#video"+id).length==0) {
+                add_videobox(id, "")
+            }
+            for (var stream of streams) {                                      
+              let _friendsVideo = document.getElementById("video"+id);
+              if(stream) {
+                  _friendsVideo.srcObject = stream; 
+                  break;
+              }
+            }
+        }
+        
         function prepareCall(id) {            
             if($("#video"+id+"_"+userid).length==0) {
                 add_videobox(id+"_"+userid, "hide")                
@@ -365,6 +371,8 @@
                             remove_user_element(id)
                             // The connection has been closed
                             break
+                          default:
+                              addtochat(get_date_str_jscript(get_dtime())+" - RTCPeerConnection state: "+pc[id].connectionState);
                         }
                     } catch(err) {console.log(err)}
                 }
