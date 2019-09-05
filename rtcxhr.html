@@ -344,7 +344,7 @@
                 add_videobox(id, "")                
             }
             if(pc[id]==null || pc[id]==undefined) {
-                addtochat(get_date_str_jscript(get_dtime())+" - prepareCall for "+id);
+                //addtochat(get_date_str_jscript(get_dtime())+" - prepareCall for "+id);
                 pc[id] = new RTCPeerConnection(configuration);
                 pc[id].onicecandidate = function(evt) {
                     if (!evt || !evt.candidate) return;
@@ -368,16 +368,19 @@
                           case "disconnected":
                             console.log("RTCPeerConnection disconnected for "+id)
                             addtochat(get_date_str_jscript(get_dtime())+" - Disconnected: "+id);
+                            $("#connect"+id).show();
                             remove_user_element(id)
                             break
                           case "failed":
                             console.log("RTCPeerConnection failed for "+id)
                             addtochat(get_date_str_jscript(get_dtime())+" - Connection failed: "+id);
+                            $("#connect"+id).show();
                             remove_user_element(id)
                             break
                           case "closed":
                             console.log("RTCPeerConnection closed for "+id)
                             addtochat(get_date_str_jscript(get_dtime())+" - Connected closed: "+id);
+                            $("#connect"+id).show();
                             remove_user_element(id)
                             // The connection has been closed
                             break
