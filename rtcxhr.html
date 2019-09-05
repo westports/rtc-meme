@@ -246,7 +246,9 @@
                 var person = prompt("Please enter your name", "");
                 if (person != null) {
                     c = person;
-                } 
+                } else {
+                    c = userid;
+                }
             }
             if(c!="" && d!="" && e!="") {
                 userid = c; $("#username").val(userid); channel = d; room = e;
