@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>Westports G-FM</title>
+    <style type="text/css">
+        #user_placeholder {
+            display: none;
+        }
+        video {
+            max-width: 100%;
+            width: 100%;
+        }
+        .hide {
+            display: none;
+        }
+        .videobox h3 {
+            text-align: center;
+        }
+    </style>
+  </head>
+  <body>
+      <div class="container">
+          <div class="row">
+              <ul class="list-group">
+                  <li class="list-group-item">
+                    <div class="form-row">
+                        <audio id="player" controls>
+                            <source  src="http://172.21.40.211:8090/lite.ogg"/>
+                          Your browser does not support this player, please update the version
+			</audio>
+                    </div>   
+                  </li>                  
+                  <li class="list-group-item"></li>
+              </ul> 
+          </div>
+      </div>
+      
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        var socket;
+        var channel = "test";
+        var room = "test";
+        var userid = Math.random();
+        var userlist = [];
+        var redirect = "http://172.21.30.72/utils/";
+        var yourVideo = document.getElementById("localVideo");
+        var pc = [];
+        var negotiating = [];
+        var hello_push = [];
+        var signal_push = [];
+        var signal_get = [];
+        var init_signal_int = null;
+        var ngrokurl = "";
+        var offer = [];
+        var rtcwait = 1;
+        var vstream = [];
+        //webRTC
+        var configuration = {
+         iceServers: [  
+          {
+           urls: 'turn:172.21.95.210:3478?transport=udp',
+           username: 'test',
+           credential: 'test'
+         },
+         {
+           urls: 'turn:172.21.95.210:3478?transport=tcp',
+           username: 'test',
+           credential: 'test'
+         },         
+        {
+            url: 'turn:numb.viagenie.ca',
+            credential: 'wihefafoh',
+            username: 'wihefafoh@coin-host.net'
+        },
+        {
+            url: 'turn:192.158.29.39:3478?transport=udp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+        },
+        {
+            url: 'turn:192.158.29.39:3478?transport=tcp',
+            credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=',
+            username: '28224511:1379330808'
+        },
+        {
+            url: 'turn:turn.bistri.com:80',
+            credential: 'homeo',
+            username: 'homeo'
+         },
+         {
+            url: 'turn:turn.anyfirewall.com:443?transport=tcp',
+            credential: 'webrtc',
+            username: 'webrtc'
+        },
+         {url:"stun:stun.l.google.com:19302"},
+         {url:"stun:stun.services.mozilla.com"}]
+        };
+        
+        var mediacfg = {"audio": true, "video": true };
+        
+        function get_server_url() {
+            let url = "https://westports.github.io/rtc-meme/url.js";
+            let d = new Date();
+            let n = d.getTime();
+            $("#script_placeholder").append("<script id='scriptget_server_url"+n+"' src='"+url+"'>");
+            setTimeout(function(){ hello_signal() }, 2000) 
+        }
+        
+        function process_signal(data, type) {
+            try {
+                
+                let json_main = window.atob(data);
+                let recvdata = JSON.parse(json_main);     
+                if(type == "hello") {
+                    let tmpuserlist = [];
+                    $.each(recvdata, function(idx, obj) { 
+                        if(obj!=userid && obj!=null && obj!=undefined) {
+                            if($("span#user_"+obj).length<=0) {                                
+                                $("#user_placeholder").append("<span id='user_"+obj+"'>"+obj+"</span>");
+                                $("#user-list").html("");
+                                $("#user_placeholder span").each(function(){
+                                    $("#user-list").append($(this).text()+"\n");
+                                });                            
+                                var $textarea = $('#user-list');
+                                $textarea.scrollTop($textarea[0].scrollHeight);
+                                prepareCall(obj);
+                            }
+                        }
+                        tmpuserlist.push(obj)
+                    });
+                    $("#user_placeholder span").each(function(){ //get disconnected users
+                        let id = $(this).text();
+                        if(tmpuserlist.indexOf(id)<0) {
+                            $("#user_"+id).remove();
+                            $("#user-list").html("");
+                            $("#user_placeholder span").each(function(){
+                                $("#user-list").append($(this).text()+"\n");
+                            });                            
+                            var $textarea = $('#user-list');
+                            $textarea.scrollTop($textarea[0].scrollHeight);  
+                            remove_user_element(id);                         
+                        }
+                    }); 
+                    $("#socket_status").html("Connected to "+channel+" ("+room+")");
+                } else if(type == "get") {
+                    let json = recvdata;
+                    if(json.type=="chat") {
+                        addtochat(get_date_str_jscript(get_dtime())+" - "+json.sender+": "+json.msg);
+                    } else if(json.type == "candidate") { //rtc related starts here
+                        //console.log("candidate "+json.sender);
+                        if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null) {
+
+                          try {    
+                              var tempicedata = json.ice;     
+                              if(typeof tempicedata.candidate!="undefined" && tempicedata!=undefined) {
+                                  pc[json.sender].addIceCandidate(tempicedata);
+                                  //console.log("addIceCandidate " + json.sender + " " + JSON.stringify((tempicedata)));
+                                  //addtochat(get_date_str_jscript(get_dtime())+" - candidate "+json.sender);
+                              }
+                          } catch(err) { console.log("addIceCandidate error: "+err) }
+
+                        }
+                    } else if(json.type == "sdp") {  //offer received, create answer
+                        try {          
+                            let sdp = JSON.parse(json.sdp);
+                            //console.log("sdp: "+JSON.stringify(sdp))
+                            if(typeof pc[json.sender]!="undefined" && pc[json.sender]!=null && typeof sdp.sdp != "undefined") { // && pc[json.sender].signalingState!="have-local-offer"
+                                //if(pc[json.sender].signalingState!="have-local-offer") {
+                                    pc[json.sender].setRemoteDescription(new RTCSessionDescription(sdp));
+                                
+                                    get_stream(json.sender);
+
+                                    if(sdp.type=="offer") {
+                                        answerCall(json.sender);
+                                    }
+                                    //addtochat(get_date_str_jscript(get_dtime())+" - sdp "+json.sender);
+                                    if(sdp.type=="answer") {
+                                        //addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
+                                    }
+                                /*} else {
+                                    remove_user_element(json.sender);
+                                }*/
+                            } 
+                        } catch(err) { console.log(err) }
+                    } else if(json.type == "endcall") {
+                        remove_user_element(json.sender);
+                        addtochat(get_date_str_jscript(get_dtime())+" - Call end: "+json.sender);
+                    }
+                }
+            
+            } catch(err) { console.log(err) }
+        }
+        
+        function addtochat(msg) {
+            $("#msg").append(msg+"\n");
+            var $textarea = $('#msg');
+            $textarea.scrollTop($textarea[0].scrollHeight);
+        }
+        
+        function hello_signal() {
+            if(ngrokurl!="") {
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").append("<script id='scripthello_signal"+n+"' src='"+ngrokurl+"utils/?t=empty&app=rtc/signal&hello=1&channel="+channel+"&id="+userid+"&n="+n+"'>");
+                setTimeout(function(){ $("#scripthello_signal"+n).remove() }, 3000)    
+            }
+        }
+        
+        function push_signal(data, to) {
+            if(ngrokurl!="") {
+                data = window.btoa(JSON.stringify(data));
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").append("<script id='scriptpush_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&push=1&n="+n+"&id="+userid+"&channel="+channel+"&to="+to+"&data="+data+"'>");
+                setTimeout(function(){ $("#scriptpush_signal"+n).remove() }, 3000)          
+            }
+        }
+        
+        function get_signal() {
+            if(ngrokurl!="") {
+                let d = new Date();
+                let n = d.getTime();
+                $("#script_placeholder").html("<script id='scriptget_signal"+n+"' src='"+ngrokurl+"/utils/?t=empty&app=rtc/signal&get=1&id="+userid+"&n="+n+"'>");
+                setTimeout(function(){ $("#scriptget_signal"+n).remove() }, 3000)
+            }
+        }        
+        
+        $(document).ready(function(){
+            var url_string = document.location.href;
+            var url = new URL(url_string);
+            var c = url.searchParams.get("u");
+            var d = url.searchParams.get("ch");
+            var e = url.searchParams.get("r");
+            /*if(c==null || c=="") {
+                var person = prompt("Please enter your name", "");
+                if (person != null) {
+                    c = person;
+                } else {
+                    document.location.href = "https://ueno.co/404";
+                    c = userid;
+                }
+            }
+            if(c!="" && d!="" && e!="") {
+                userid = c; $("#username").val(userid); channel = d; room = e;
+            }*/
+            
+            /*get_server_url();
+            //start communicating with signal server
+            setInterval(function(){
+                get_signal();
+            }, 2000);    
+            //broadcast own id
+            setInterval(function(){   
+                hello_signal();
+                rtcwait = 0;
+                check_rtc();
+            }, 5000);
+            hello_signal();
+            */ 
+                          
+        });
+        
+        function get_stream(id) {
+            var streams = pc[id].getRemoteStreams();
+            if($("#video"+id).length==0) {
+                add_videobox(id, "")
+            }
+            for (var stream of streams) {                                      
+              let _friendsVideo = document.getElementById("video"+id);
+              if(stream) {
+                  _friendsVideo.srcObject = stream; 
+                  vstream[id] = stream;
+                  $("#video"+id).show();
+                  break;
+              }
+            }
+        }
+        
+        function check_rtc() {
+            $("#user_placeholder span").each(function(){ //get disconnected users
+                let id = $(this).text();
+                if(pc[id]!=null && pc[id]!=undefined) {
+                    if(vstream[id]==null || vstream[id]==undefined) {
+                        //addtochat(get_date_str_jscript(get_dtime())+" - check_rtc "+id+" send offer");
+                        //createAndSendOffer(id);                    
+                    }
+                }
+            }); 
+        }
+        
+        function prepareCall(id) {            
+            if($("#video"+id+"_"+userid).length==0) {
+                add_videobox(id+"_"+userid, "hide")                
+            }
+            if($("#video"+id).length==0) {
+                add_videobox(id, "")                
+            }
+            if(pc[id]==null || pc[id]==undefined) {
+                //addtochat(get_date_str_jscript(get_dtime())+" - prepareCall for "+id);
+                pc[id] = new RTCPeerConnection(configuration);
+                pc[id].onicecandidate = function(evt) {
+                    if (!evt || !evt.candidate) return;
+                    push_signal({"type":"candidate", "sender":userid, "ice": evt.candidate }, '');
+                };
+                pc[id].onaddstream = function(evt) {
+                    $("#connect"+id).hide()
+                    $("#end"+id).show();
+                    let _friendsVideo = document.getElementById("video"+id);
+                    _friendsVideo.srcObject = evt.stream;    
+                    vstream[id] = evt.stream;
+                    $("#video"+id).show();
+                };
+                pc[id].onconnectionstatechange = function(event) {
+                    try {
+                        switch(pc[id].connectionState) {
+                          case "connected":
+                            // The connection has become fully connected
+                            console.log("RTCPeerConnection connected for "+id)    
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connected: "+id);
+                            break
+                          case "disconnected":
+                            console.log("RTCPeerConnection disconnected for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - Disconnected: "+id);
+                            $("#connect"+id).show();
+                            remove_user_element(id)
+                            break
+                          case "failed":
+                            console.log("RTCPeerConnection failed for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connection failed: "+id);
+                            $("#connect"+id).show();
+                            remove_user_element(id)
+                            break
+                          case "closed":
+                            console.log("RTCPeerConnection closed for "+id)
+                            addtochat(get_date_str_jscript(get_dtime())+" - Connected closed: "+id);
+                            $("#connect"+id).show();
+                            remove_user_element(id)
+                            // The connection has been closed
+                            break
+                          default:
+                              addtochat(get_date_str_jscript(get_dtime())+" - Connection state: "+id+" "+pc[id].connectionState);
+                        }
+                    } catch(err) {console.log(err)}
+                }
+                let _tempVideo = document.getElementById("video"+id+"_"+userid);
+                navigator.getUserMedia(mediacfg, function (stream) {
+                    _tempVideo.srcObject = stream; 
+                    pc[id].addStream(stream);
+                }, function (error) { console.log( error);})
+            }
+        };
+        
+        function createAndSendOffer(id) {
+            if(offer[id]==null || offer[id]==undefined) {
+                $("#connect"+id).hide();
+                $("#end"+id).show();
+                pc[id].createOffer(
+                  function (_offer) {
+                    offer[id] = 1;
+                    var off = new RTCSessionDescription(_offer);
+                    pc[id].setLocalDescription(off, 
+                      function() {
+                        push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(off) }, id);
+                        $("#video"+id).show();
+                      }, 
+                      function(error) { 
+                        console.log( error);
+                      }
+                    );
+                  }, 
+                  function (error) { 
+                    console.log( error);
+                  }
+                );
+            }
+          };
+          
+          function answerCall(id) {
+            console.log("start answer to "+id)
+            createAndSendAnswer(id);
+          };
+          
+          function createAndSendAnswer(id) {
+            pc[id].createAnswer(
+              function (answer) {
+                var ans = new RTCSessionDescription( answer);
+                pc[id].setLocalDescription( ans, function() {
+                    push_signal({"type":"sdp", "sender":userid, "sdp": JSON.stringify(ans)}, id)
+                  }, 
+                  function (error) { 
+                    console.log( error);
+                  }
+                );
+              },
+              function (error) { 
+                console.log( error);
+              }
+            );
+          }
+        
+        function add_videobox(id, _class) {
+            let muted = (_class=="hide")? "muted" : "";
+            let html = "<div class=\"col-md-5 videobox "+_class+"\" id='videobox"+id+"'>\
+                <div class=\"card\">\
+                    <div class=\"card-body\">\
+                        <video id='video"+id+"' autoplay controls "+muted+"></video>\
+                        <p><b>"+id+"</b> \
+                        <button class=\"btn btn-primary\" type=\"button\" id='connect"+id+"'>Call</button>\
+                        <button class=\"btn btn-danger\" type=\"button\" id='end"+id+"' style='display:none'>End</button>\
+                        <button class=\"btn btn-primary hide\" type=\"button\" id='check"+id+"'>State</button>\
+                        </p>\
+                    </div>\
+                </div>\
+            </div>";
+            $("#remoteViewContainer").append(html);
+            $("#video"+id).hide();
+            $("#connect"+id).click(function(){
+                addtochat(get_date_str_jscript(get_dtime())+" - Call start: "+id);
+                createAndSendOffer(id);
+            })
+            $("#check"+id).click(function(){
+                addtochat(get_date_str_jscript(get_dtime())+" - "+id+" "+pc[id].signalingState);
+            })
+            $("#end"+id).click(function(){
+                pc[id].close();
+                $("#connect"+id).show();
+                $("#end"+id).hide();
+                remove_user_element(id);
+                addtochat(get_date_str_jscript(get_dtime())+" - Call end: "+id);
+                push_signal({"type":"endcall", "sender":userid}, id)
+            })
+        }
+        
+        function remove_user_element(id) {
+            try { 
+                pc[id].close() 
+                pc[id] = null;    
+                pc.splice(id,1);
+                $("#video"+id).remove();
+                $("#video"+id+"_"+userid).remove();
+                $("#videobox"+id).remove();
+                $("#videobox"+id+"_"+userid).remove();
+                offer[id] = null; 
+                offer.splice(id,1);
+                vstream[id] = null;
+                vstream.splice(id,1);
+                if($("span#user_"+id).length>0) {
+                    prepareCall(id)
+                }
+                
+            } catch(err) {}
+        }
+        
+        function get_dtime() {
+            let dt = new Date();
+            return dt;
+        }
+        
+        function get_date_str_jscript(d) {
+            var now = d;
+            var dt = now.getDate();
+            dt = (String(dt).length<2)? String("0") + String(dt) : dt;
+            var hrs = now.getHours();
+            hrs = (String(hrs).length<2)? String("0") + String(hrs) : hrs;
+            var min = now.getMinutes();
+            min = (String(min).length<2)? String("0") + String(min) : min;
+            var sec = now.getSeconds();
+            sec = (String(sec).length<2)? String("0") + String(sec) : sec;
+            var mth = (now.getMonth() + 1);
+            mth = (String(mth).length<2)? String("0") + String(mth) : mth;
+            //return now.getFullYear()+'-'+String(mth)+'-'+String(dt)+' '+String(hrs)+':'+String(min)+':'+String(sec);
+            return String(hrs)+':'+String(min)+':'+String(sec);
+            //return now.getHours()+':'+String(min)+':'+String(sec);
+        }
+        
+        function onSuccess() {};
+        function onError(error) {
+          console.log(error);
+        };
+
+        function hasGetUserMedia() {
+          return !!(navigator.mediaDevices &&
+            navigator.mediaDevices.getUserMedia);
+        }
+
+        function gotDevices(deviceInfos) {
+          if(deviceInfos.length==0) {
+              alert("Your device has no media!"); 
+              //socket.close();
+          }
+          for (let i = 0; i !== deviceInfos.length; ++i) {
+            const deviceInfo = deviceInfos[i];
+            //console.log('Found device: ', deviceInfo);
+          }
+        }
+    </script>
+  </body>
+</html>
