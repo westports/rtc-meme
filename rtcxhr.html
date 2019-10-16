@@ -62,7 +62,6 @@
                         </div>
                     </div>
                   </li>
-                  <!--<li class="list-group-item"><iframe src="http://172.21.88.67:8180/login" height="100%" width="100%" style="border:none;margin-top:10px;"></iframe></li>-->
                   <li class="list-group-item" id="script_placeholder"></li>
               </ul> 
           </div>
@@ -133,7 +132,7 @@
          {url:"stun:stun.services.mozilla.com"}]
         };
         
-        var mediacfg = {"audio": true, "video": true };
+        var mediacfg = {"audio": true, "video": false };
         
         function get_server_url() {
             let url = "https://westports.github.io/rtc-meme/url.js";
@@ -214,9 +213,6 @@
                                     if(sdp.type=="answer") {
                                         //addtochat(get_date_str_jscript(get_dtime())+" - answer received "+json.sender);
                                     }
-                                /*} else {
-                                    remove_user_element(json.sender);
-                                }*/
                             } 
                         } catch(err) { console.log(err) }
                     } else if(json.type == "endcall") {
